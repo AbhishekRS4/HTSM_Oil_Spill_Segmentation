@@ -72,6 +72,7 @@ def batch_train(FLAGS):
     csv_writer = CSVWriter(file_name=os.path.join(dir_path, "train_metrics.csv"),
         column_names=["epoch", "train_loss", "valid_loss", "valid_acc", "valid_IOU"])
 
+    os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_dataset_loader, valid_dataset_loader = get_dataloaders_for_training(
