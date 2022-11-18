@@ -100,11 +100,22 @@ def batch_train(FLAGS):
         sys.exit(0)
     oil_spill_seg_model.to(device)
 
-    optimizer = torch.optim.AdamW(
-        oil_spill_seg_model.parameters(),
-        lr=FLAGS.learning_rate,
-        weight_decay=FLAGS.weight_decay,
-    )
+    if FLAGS.which_optimizer == "sgd":
+        optimizer = torch.optim.SGD(
+            oil_spill_seg_model.parameters(),
+            lr=FLAGS.learning_rate,
+            momentum=0.9,
+            weight_decay=FLAGS.weight_decay
+        )
+        lr_scheduler = torch.optim.lr_scheduler.PolynomialLR(
+            optimizer, FLAGS.num_epochs+1, power=0.9,
+        )
+    elif FLAGS.which_optimizer == "adamw":
+        optimizer = torch.optim.AdamW(
+            oil_spill_seg_model.parameters(),
+            lr=FLAGS.learning_rate,
+            weight_decay=FLAGS.weight_decay,
+        )
 
     ce_loss = torch.nn.CrossEntropyLoss()
 
@@ -131,13 +142,16 @@ def batch_train(FLAGS):
             ]
         )
         torch.save(oil_spill_seg_model.state_dict(), os.path.join(dir_path, f"oil_spill_seg_{FLAGS.which_model}_{epoch}.pt"))
+        if FLAGS.which_optimizer == "sgd":
+            lr_scheduler.step()
     print("Training complete!!!!")
     csv_writer.close()
 
 def main():
     dir_dataset = "/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/"
-    learning_rate = 1e-4
-    weight_decay = 1e-5
+    learning_rate = 1e-2
+    weight_decay = 1e-4
+    which_optimizer = "sgd"
     num_epochs = 50
     batch_size = 32
     num_classes = 5
@@ -160,8 +174,10 @@ def main():
     parser.add_argument("--pretrained", default=1,
         type=int, choices=[0, 1], help="use pretrained encoder (1:True, 0:False)")
 
+    parser.add_argument("--which_optimizer", default=which_optimizer,
+        type=str, choices=["sgd", "adamw"], help="optimizer to be used for learning")
     parser.add_argument("--learning_rate", default=learning_rate,
-        type=float, help="learning rate")
+        type=float, help="learning rate (1e-4 for AdamW and 1e-2 for SGD)")
     parser.add_argument("--weight_decay", default=weight_decay,
         type=float, help="weight decay")
     parser.add_argument("--num_epochs", default=num_epochs,
