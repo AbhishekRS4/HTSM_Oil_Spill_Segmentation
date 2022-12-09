@@ -8,6 +8,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 
+from logger_utils import load_dict_from_json
 
 class M4DSAROilSpillDataset(Dataset):
     def __init__(self, dir_data, list_images, which_set="train", file_stats_json="image_stats.json"):
@@ -19,13 +20,7 @@ class M4DSAROilSpillDataset(Dataset):
 
         self.list_images = sorted(list_images)
         self.list_labels = [f.replace(".jpg", ".png") for f in self.list_images]
-        self.dict_stats = None
-
-        try:
-            with open(file_stats_json) as fh:
-                self.dict_stats = json.load(fh)
-        except:
-            print(f"{self.file_stats_json} not found")
+        self.dict_stats = load_dict_from_json(self.file_stats_json)
 
         if self.which_set == "train":
             self.image_transform = transforms.Compose([
