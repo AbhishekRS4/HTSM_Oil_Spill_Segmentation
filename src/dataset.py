@@ -1,4 +1,5 @@
 import os
+import json
 import torch
 import numpy as np
 from PIL import Image
@@ -9,14 +10,22 @@ from sklearn.model_selection import train_test_split
 
 
 class M4DSAROilSpillDataset(Dataset):
-    def __init__(self, dir_data, list_images, which_set="train"):
+    def __init__(self, dir_data, list_images, which_set="train", file_stats_json="image_stats.json"):
         self.dir_data = dir_data
         self.which_set = which_set
+        self.file_stats_json = file_stats_json
         self.dir_images = os.path.join(self.dir_data, "images")
         self.dir_labels = os.path.join(self.dir_data, "labels_1D")
 
         self.list_images = sorted(list_images)
         self.list_labels = [f.replace(".jpg", ".png") for f in self.list_images]
+        self.dict_stats = None
+
+        try:
+            with open(file_stats_json) as fh:
+                self.dict_stats = json.load(fh)
+        except:
+            print(f"{self.file_stats_json} not found")
 
         if self.which_set == "train":
             self.image_transform = transforms.Compose([
@@ -26,8 +35,16 @@ class M4DSAROilSpillDataset(Dataset):
                 transforms.RandomVerticalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225]
+                    mean=[
+                        self.dict_stats["mean"],
+                        self.dict_stats["mean"],
+                        self.dict_stats["mean"]
+                    ],
+                    std=[
+                        self.dict_stats["std"],
+                        self.dict_stats["std"],
+                        self.dict_stats["std"]
+                    ]
                 ),
             ])
         else:
