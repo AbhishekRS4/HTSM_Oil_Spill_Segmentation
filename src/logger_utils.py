@@ -30,7 +30,7 @@ def load_dict_from_json(file_json):
         dictionary of params loaded from the json file
     """
     dict_data = {}
-    with open(file_stats_json) as fh:
+    with open(file_json) as fh:
         dict_data = json.load(fh)
     return dict_data
 
