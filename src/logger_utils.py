@@ -1,4 +1,38 @@
 import csv
+import json
+
+def write_dict_to_json(file_json, dict_data):
+    """
+    ---------
+    Arguments
+    ---------
+    file_json : str
+        full path of json file to be saved
+    dict_data : dict
+        dictionary of params to be saved in the json file
+    """
+    with open(file_json, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(dict_data, indent=4))
+    return
+
+def load_dict_from_json(file_json):
+    """
+    ---------
+    Arguments
+    ---------
+    file_json : str
+        full path of json file to be saved
+
+    -------
+    Returns
+    -------
+    dict_data : dict
+        dictionary of params loaded from the json file
+    """
+    dict_data = {}
+    with open(file_stats_json) as fh:
+        dict_data = json.load(fh)
+    return dict_data
 
 class CSVWriter:
     """
