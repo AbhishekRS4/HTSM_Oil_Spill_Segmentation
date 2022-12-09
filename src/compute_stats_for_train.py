@@ -4,19 +4,7 @@ import argparse
 import numpy as np
 from skimage.io import imread
 
-def write_json_file(file_json, dict_data):
-    """
-    ---------
-    Arguments
-    ---------
-    file_json : str
-        full path of json file to be saved
-    dict_data : dict
-        dictionary of params to be saved in the json file
-    """
-    with open(file_json, "w", encoding="utf-8") as fh:
-        fh.write(json.dumps(dict_data, indent=4))
-    return
+from logger_utils import write_json_file
 
 def compute_stats(FLAGS):
     list_images = sorted(os.listdir(FLAGS.dir_images))
@@ -44,7 +32,7 @@ def compute_stats(FLAGS):
     dict_stats = {}
     dict_stats["mean"] = round(mean_of_images, 4)
     dict_stats["std"] = round(std_of_images, 4)
-    write_json_file(FLAGS.file_json, dict_stats)
+    write_dict_to_json(FLAGS.file_json, dict_stats)
     print(f"Training image statistics saved in {FLAGS.file_json}")
     print("Completed computing statistics for all the training images in the dataset")
     return
