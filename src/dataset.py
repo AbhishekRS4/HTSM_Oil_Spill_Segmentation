@@ -8,6 +8,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 
+from image_preprocessing import ImagePadder
 from logger_utils import load_dict_from_json
 
 class M4DSAROilSpillDataset(Dataset):
@@ -15,17 +16,19 @@ class M4DSAROilSpillDataset(Dataset):
         self.dir_data = dir_data
         self.which_set = which_set
         self.file_stats_json = file_stats_json
-        self.dir_images = os.path.join(self.dir_data, "images")
-        self.dir_labels = os.path.join(self.dir_data, "labels_1D")
-
-        self.list_images = sorted(list_images)
-        self.list_labels = [f.replace(".jpg", ".png") for f in self.list_images]
         self.dict_stats = load_dict_from_json(self.file_stats_json)
+        self._dir_images = os.path.join(self.dir_data, "images")
+        self._dir_labels = os.path.join(self.dir_data, "labels_1D")
+
+        self._list_images = sorted(list_images)
+        self._list_label = [f.replace(".jpg", ".png") for f in self._list_images]
+
+        self._image_padder = ImagePadder(self._dir_images)
+        self._image_transform = None
 
         if self.which_set == "train":
-            self.image_transform = transforms.Compose([
+            self._image_transform = transforms.Compose([
                 transforms.ToPILImage(),
-                transforms.Pad((15, 11), fill=0),
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
                 transforms.ToTensor(),
@@ -43,32 +46,37 @@ class M4DSAROilSpillDataset(Dataset):
                 ),
             ])
         else:
-            self.image_transform = transforms.Compose([
+            self._image_transform = transforms.Compose([
                 transforms.ToPILImage(),
-                transforms.Pad((15, 11), fill=0),
                 transforms.ToTensor(),
                 transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225]
+                    mean=[
+                        self.dict_stats["mean"],
+                        self.dict_stats["mean"],
+                        self.dict_stats["mean"]
+                    ],
+                    std=[
+                        self.dict_stats["std"],
+                        self.dict_stats["std"],
+                        self.dict_stats["std"]
+                    ]
                 ),
             ])
 
     def __len__(self):
-        return len(self.list_images)
+        return len(self._list_images)
 
     def __getitem__(self, idx):
-        file_image = os.path.join(self.dir_images, self.list_images[idx])
-        file_label = os.path.join(self.dir_labels, self.list_labels[idx])
+        file_image = os.path.join(self._dir_images, self._list_images[idx])
+        file_label = os.path.join(self._dir_labels, self._list_label[idx])
 
         image = imread(file_image)
         label = imread(file_label)
-        label_dims = label.shape
 
-        image = self.image_transform(image)
-        label = torch.nn.functional.pad(
-            torch.from_numpy(label), (15, 15, 11, 11), value=0
-        )
+        image = self._image_padder.pad_image(image)
+        label = self._image_padder.pad_label(label)
 
+        image = self._image_transform(image)
         return image, label
 
 def get_dataloaders_for_training(dir_dataset, batch_size, num_workers=4):
