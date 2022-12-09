@@ -11,7 +11,7 @@ def compute_mean_pixel_acc(true_label, pred_label):
         return
 
     if true_label.dim() != 3:
-        print("true_label has dim", true_label.dim(), ", Must be 4.")
+        print("true_label has dim", true_label.dim(), ", Must be 3.")
         return
 
     acc_sum = 0
@@ -31,6 +31,7 @@ def compute_mean_pixel_acc(true_label, pred_label):
     mean_pixel_accuracy = acc_sum / true_label.shape[0]
     return mean_pixel_accuracy
 
+# compute mean IOU
 def compute_mean_IOU(true_label, pred_label, num_classes=5):
     iou_list = list()
     present_iou_list = list()
