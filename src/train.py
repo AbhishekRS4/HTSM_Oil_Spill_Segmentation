@@ -13,8 +13,8 @@ from torchvision import transforms
 
 from metrics import *
 from seg_models import *
-from logger_utils import CSVWriter
 from dataset import get_dataloaders_for_training
+from logger_utils import CSVWriter, write_dict_to_json
 
 from torch.optim.lr_scheduler import _LRScheduler
 
@@ -130,8 +130,8 @@ def batch_train(FLAGS):
         )
 
     ce_loss = torch.nn.CrossEntropyLoss()
-
     print("\ntraining oil spill segmentation model\n")
+    write_dict_to_json(os.path.join(dir_path, "params.json"), vars(FLAGS))
     for epoch in range(1, FLAGS.num_epochs+1):
         t_1 = time.time()
         train_loss = train_loop(
