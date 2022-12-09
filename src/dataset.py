@@ -16,7 +16,11 @@ class M4DSAROilSpillDataset(Dataset):
         self.dir_data = dir_data
         self.which_set = which_set
         self.file_stats_json = file_stats_json
-        self.dict_stats = load_dict_from_json(self.file_stats_json)
+        try:
+            self.dict_stats = load_dict_from_json(self.file_stats_json)
+        except:
+            dir_json = os.path.dirname(os.path.realpath(__file__))
+            self.dict_stats = load_dict_from_json(os.path.join(dir_json, self.file_stats_json))
         self._dir_images = os.path.join(self.dir_data, "images")
         self._dir_labels = os.path.join(self.dir_data, "labels_1D")
 
