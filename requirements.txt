@@ -1,0 +1,8 @@
+torch==1.12.1+cu113
+torchvision==0.13.1+cu113
+typing-extensions==4.4.0
+numpy==1.23.5
+Pillow==9.3.0
+scikit-image==0.19.3
+scikit-learn==1.2.0
+opencv-python==4.6.0.66
