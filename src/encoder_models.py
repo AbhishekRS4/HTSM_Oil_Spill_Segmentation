@@ -354,7 +354,6 @@ def efficientnet_v2_m(pretrained=True, **kwargs: Any):
     inverted_residual_setting, last_channel = _efficientnet_conf(which_efficientnet)
     if pretrained:
         weights = EfficientNet_V2_M_Weights.IMAGENET1K_V1
-        weights = EfficientNet_V2_S_Weights.verify(weights)
     else:
         weights = None
     return _efficientnet(
