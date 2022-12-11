@@ -2,6 +2,35 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
+class DeepLabV3(nn.Module):
+    def __init__(self, in_channels, num_classes, aspp_out_channels=256, final_out_channels=256, aspp_dilate=[12, 24, 36]):
+        super().__init__()
+        self.aspp_block = ASPPBlock(in_channels, aspp_dilate, aspp_out_channels=aspp_out_channels)
+        self.classifier_conv_block = nn.Sequential(
+            nn.Conv2d(
+                aspp_out_channels,
+                final_out_channels, 3, padding=1, bias=False
+            ),
+            nn.BatchNorm2d(final_out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(final_out_channels, num_classes, 1, stride=1, padding="same")
+        )
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight)
+            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+        return
+
+    def forward(self, encoded_features):
+        aspp_output_feature = self.aspp_block(encoded_features)
+        final_output_feature = self.classifier_conv_block(aspp_output_feature)
+        return final_output_feature
+
 class DeepLabV3Plus(nn.Module):
     def __init__(self, in_channels, encoder_channels, num_classes, encoder_projection_channels=48,
         aspp_out_channels=256, final_out_channels=256, aspp_dilate=[12, 24, 36]):
