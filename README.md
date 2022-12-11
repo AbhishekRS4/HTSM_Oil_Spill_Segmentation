@@ -1,5 +1,13 @@
 # HTSM Masterwork - Oil Spill Detection using Semantic Segmentation
 
+
+## Required dependencies
+* To install pytorch use the following command
+```
+pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+```
+* The other required dependencies are available in [requirements.txt](requirements.txt)
+
 ## Info
 * This repo contains the project work done as part of the [HTSM Masterwork](https://www.rug.nl/education/honours-college/htsm-masterprogramme/about-the-programme) at [University of Groningen](https://www.rug.nl/)
 
