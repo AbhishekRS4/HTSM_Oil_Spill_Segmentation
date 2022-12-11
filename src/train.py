@@ -107,6 +107,18 @@ def batch_train(FLAGS):
         oil_spill_seg_model = ResNet101DeepLabV3Plus(
             num_classes=FLAGS.num_classes, pretrained=bool(FLAGS.pretrained)
         )
+    elif FLAGS.which_model == "efficientnet_v2_s_deeplab_v3":
+        oil_spill_seg_model = EfficientNetSDeepLabV3(
+            num_classes=FLAGS.num_classes, pretrained=bool(FLAGS.pretrained)
+        )
+    elif FLAGS.which_model == "efficientnet_v2_m_deeplab_v3":
+        oil_spill_seg_model = EfficientNetMDeepLabV3(
+            num_classes=FLAGS.num_classes, pretrained=bool(FLAGS.pretrained)
+        )
+    elif FLAGS.which_model == "efficientnet_v2_l_deeplab_v3":
+        oil_spill_seg_model = EfficientNetLDeepLabV3(
+            num_classes=FLAGS.num_classes, pretrained=bool(FLAGS.pretrained)
+        )
     else:
         print("model not yet implemented, so exiting")
         sys.exit(0)
@@ -130,7 +142,7 @@ def batch_train(FLAGS):
         )
 
     ce_loss = torch.nn.CrossEntropyLoss()
-    print("\ntraining oil spill segmentation model\n")
+    print(f"\ntraining oil spill segmentation model: {FLAGS.which_model}\n")
     write_dict_to_json(os.path.join(dir_path, "params.json"), vars(FLAGS))
     for epoch in range(1, FLAGS.num_epochs+1):
         t_1 = time.time()
@@ -174,6 +186,9 @@ def main():
         "resnet_34_deeplab_v3+",
         "resnet_50_deeplab_v3+",
         "resnet_101_deeplab_v3+",
+        "efficientnet_v2_s_deeplab_v3",
+        "efficientnet_v2_m_deeplab_v3",
+        "efficientnet_v2_l_deeplab_v3",
     ]
 
     parser = argparse.ArgumentParser(
