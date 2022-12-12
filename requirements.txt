@@ -1,5 +1,6 @@
 torch==1.12.1+cu113
 torchvision==0.13.1+cu113
+torchsummary==1.5.1
 typing-extensions==4.4.0
 numpy==1.23.5
 Pillow==9.3.0
