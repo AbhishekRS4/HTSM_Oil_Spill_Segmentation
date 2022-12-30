@@ -83,12 +83,12 @@ class M4DSAROilSpillDataset(Dataset):
         image = self._image_transform(image)
         return image, label
 
-def get_dataloaders_for_training(dir_dataset, batch_size, num_workers=4):
+def get_dataloaders_for_training(dir_dataset, batch_size, random_state=None, num_workers=4):
     list_images = sorted(
         [f for f in os.listdir(os.path.join(dir_dataset, "train", "images")) if f.endswith(".jpg")]
     )
     list_train_images, list_valid_images = train_test_split(
-        list_images, test_size=0.05, shuffle=True
+        list_images, test_size=0.05, shuffle=True, random_state=random_state,
     )
     print("dataset information")
     print(f"number of train samples: {len(list_train_images)}")

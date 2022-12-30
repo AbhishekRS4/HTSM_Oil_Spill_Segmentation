@@ -88,7 +88,7 @@ def batch_train(FLAGS):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_dataset_loader, valid_dataset_loader = get_dataloaders_for_training(
-        FLAGS.dir_dataset, FLAGS.batch_size,
+        FLAGS.dir_dataset, FLAGS.batch_size, random_state=FLAGS.random_state,
     )
 
     if FLAGS.which_model == "resnet_18_deeplab_v3+":
@@ -200,6 +200,9 @@ def main():
 
     parser.add_argument("--pretrained", default=1,
         type=int, choices=[0, 1], help="use pretrained encoder (1:True, 0:False)")
+
+    parser.add_argument("--random_state", default=3,
+        type=int, help="random state to be used to split dataset into train and validation sets")
 
     parser.add_argument("--which_optimizer", default=which_optimizer,
         type=str, choices=["sgd", "adamw"], help="optimizer to be used for learning")
