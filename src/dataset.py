@@ -28,44 +28,31 @@ class M4DSAROilSpillDataset(Dataset):
         self._list_label = [f.replace(".jpg", ".png") for f in self._list_images]
 
         self._image_padder = ImagePadder(self._dir_images)
-        self._image_transform = None
+        self._affine_transform = None
+
+        self._image_transform = transforms.Compose([
+            transforms.ToPILImage(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[
+                    self.dict_stats["mean"],
+                    self.dict_stats["mean"],
+                    self.dict_stats["mean"]
+                ],
+                std=[
+                    self.dict_stats["std"],
+                    self.dict_stats["std"],
+                    self.dict_stats["std"]
+                ]
+            ),
+        ])
 
         if self.which_set == "train":
-            self._image_transform = transforms.Compose([
-                transforms.ToPILImage(),
+            self._affine_transform = transforms.Compose([
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomVerticalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[
-                        self.dict_stats["mean"],
-                        self.dict_stats["mean"],
-                        self.dict_stats["mean"]
-                    ],
-                    std=[
-                        self.dict_stats["std"],
-                        self.dict_stats["std"],
-                        self.dict_stats["std"]
-                    ]
-                ),
             ])
-        else:
-            self._image_transform = transforms.Compose([
-                transforms.ToPILImage(),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[
-                        self.dict_stats["mean"],
-                        self.dict_stats["mean"],
-                        self.dict_stats["mean"]
-                    ],
-                    std=[
-                        self.dict_stats["std"],
-                        self.dict_stats["std"],
-                        self.dict_stats["std"]
-                    ]
-                ),
-            ])
+
 
     def __len__(self):
         return len(self._list_images)
@@ -79,6 +66,28 @@ class M4DSAROilSpillDataset(Dataset):
 
         image = self._image_padder.pad_image(image)
         label = self._image_padder.pad_label(label)
+
+        if self.which_set == "train":
+            image_tensor = torch.from_numpy(image)
+            # H x W x 3
+            label_tensor = torch.from_numpy(label)
+            # H x W
+            label_tensor = torch.unsqueeze(label_tensor, dim=-1)
+            # H x W x 1
+            stacked = torch.cat([image_tensor, label_tensor], dim=-1)
+            # H x W x 4
+            stacked = torch.permute(stacked, [2, 0, 1])
+            # 4 x H x W
+            stacked_transformed = self._affine_transform(stacked)
+            # 4 x H x W
+            stacked_transformed = torch.permute(stacked_transformed, [1, 2, 0])
+            # H x W x 4
+            stacked_arr = stacked_transformed.numpy()
+
+            image = stacked_arr[:, :, :-1]
+            # H x W x 3
+            label = stacked_arr[:, :, -1]
+            # H x W
 
         image = self._image_transform(image)
         return image, label
