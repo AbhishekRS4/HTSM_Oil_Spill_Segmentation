@@ -155,7 +155,7 @@ def batch_train(FLAGS):
         valid_loss, valid_acc, valid_IOU = validation_loop(
             valid_dataset_loader, oil_spill_seg_model, ce_loss, device
         )
-        print(f"validation loss: {valid_loss:.5f}, validation accuracy: {valid_acc:.5f}, validation iou: {valid_IOU:.5f}")
+        print(f"validation loss: {valid_loss:.5f}, validation accuracy: {valid_acc:.5f}, validation IOU: {valid_IOU:.5f}")
         csv_writer.write_row(
             [
                 epoch,
