@@ -170,6 +170,7 @@ def batch_train(FLAGS):
             lr_scheduler.step()
     print("Training complete!!!!")
     csv_writer.close()
+    return
 
 def main():
     dir_dataset = "/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/"
@@ -225,6 +226,7 @@ def main():
 
     FLAGS, unparsed = parser.parse_known_args()
     batch_train(FLAGS)
+    return
 
 if __name__ == "__main__":
     main()
