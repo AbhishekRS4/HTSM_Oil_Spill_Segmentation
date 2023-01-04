@@ -25,9 +25,10 @@ class M4DSAROilSpillDataset(Dataset):
         self._dir_labels = os.path.join(self.dir_data, "labels_1D")
 
         self._list_images = sorted(list_images)
-        self._list_label = [f.replace(".jpg", ".png") for f in self._list_images]
+        self._list_labels = [f.replace(".jpg", ".png") for f in self._list_images]
 
-        self._image_padder = ImagePadder(self._dir_images)
+        dir_pad_image = os.path.dirname(self._dir_images)
+        self._image_padder = ImagePadder(os.path.join("/".join(os.path.normpath(dir_pad_image).split(os.sep)[:-1]), "train", "images"))
         self._affine_transform = None
 
         self._image_transform = transforms.Compose([
@@ -59,7 +60,7 @@ class M4DSAROilSpillDataset(Dataset):
 
     def __getitem__(self, idx):
         file_image = os.path.join(self._dir_images, self._list_images[idx])
-        file_label = os.path.join(self._dir_labels, self._list_label[idx])
+        file_label = os.path.join(self._dir_labels, self._list_labels[idx])
 
         image = imread(file_image)
         label = imread(file_label)
@@ -127,3 +128,21 @@ def get_dataloaders_for_training(dir_dataset, batch_size, random_state=None, num
         num_workers=num_workers
     )
     return train_dataset_loader, valid_dataset_loader
+
+def get_dataloader_for_inference(dir_dataset, batch_size=1, num_workers=4):
+    list_inference_images = sorted(
+        [f for f in os.listdir(os.path.join(dir_dataset, "test", "images")) if f.endswith(".jpg")]
+    )
+
+    inference_dataset = M4DSAROilSpillDataset(
+        os.path.join(dir_dataset, "test"),
+        list_inference_images,
+        which_set="test"
+    )
+    inference_dataset_loader = DataLoader(
+        inference_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers
+    )
+    return inference_dataset_loader, list_inference_images
