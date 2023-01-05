@@ -73,8 +73,11 @@ def inference_loop(dataset_loader, list_images, model, dir_labels, dir_masks, nu
         file_pred_label = os.path.join(dir_labels, list_images[cur_file_index].replace(".jpg", image_format))
         file_pred_mask = os.path.join(dir_masks, list_images[cur_file_index].replace(".jpg", image_format))
 
-        imsave(file_pred_label, pred_label_arr)
-        imsave(file_pred_mask, pred_mask_arr)
+        padded_height, padded_width = pred_label_arr.shape
+
+        # remove padding and save the label and mask images
+        imsave(file_pred_label, pred_label_arr[11:padded_height-11, 15:padded_width-15])
+        imsave(file_pred_mask, pred_mask_arr[11:padded_height-11, 15:padded_width-15])
 
         cur_file_index += 1
 
