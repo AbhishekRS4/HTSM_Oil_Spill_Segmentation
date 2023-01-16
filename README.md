@@ -27,6 +27,10 @@ with the mean and std. dev. of images in the training set.
 * Run the notebook [src/EDA.ipynb](src/EDA.ipynb) or the script [src/exploratory_data_analysis.py](src/exploratory_data_analysis.py) to generate the plot of class distribution in the dataset.
 * For plotting the variation of loss, accuracy, IoU during the training phase, use the notebook [src/plot_graphs.ipynb](src/plot_graphs.ipynb)
 * To infer on the test set, run the script [src/inference.py](src/inference.py)
+* To run the inference live demo, run the script [src/inference_live_demo.py](src/inference_live_demo.py) using the following command
+```
+streamlit run src/inference_live_demo.py
+```
 
 ## Sample predictions
 ![Sample predicted mask 1](images/pred_mask_img_0001.png?raw=true)
