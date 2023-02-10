@@ -9,7 +9,8 @@ Synthetic Aperture Radar (SAR) data.
 
 ## Dataset information
 * The details about the dataset used in this Masterwork project can be found [here - dataset details](https://m4d.iti.gr/oil-spill-detection-dataset/).
-
+* This dataset contains labels for 5 classes --- sea surface, oil spill, oil spill look-alike, ship, and land.
+* ThIs dataset is a relatively smaller dataset when compared to other popular benchmark datasets for the segmentation task.
 
 ## Required dependencies
 * To install pytorch use the following command
