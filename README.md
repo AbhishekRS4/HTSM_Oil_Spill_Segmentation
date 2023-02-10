@@ -52,11 +52,11 @@ streamlit run src/inference_live_demo.py
 class  |  class IoU (%)  |
 -------|-----------------|
 sea surface  |  96.422  |
-oil spill  |  61.549  |
+**oil spill**  |  **61.549**  |
 oil spill look-alike  |  40.773  |
 ship  |  33.378  |
 land  |  92.218  |
-mean IoU  |  64.868  |
+**mean IoU**  |  **64.868**  |
 
 
 ## References
