@@ -37,7 +37,7 @@ with the mean and std. dev. of images in the training set.
 streamlit run src/inference_live_demo.py
 ```
 
-## Qualitative results - sample predictions
+## Qualitative results - sample test set predictions
 ![Sample predicted mask 1](images/pred_mask_img_0001.png?raw=true)
 ![Sample predicted mask 2](images/pred_mask_img_0007.png?raw=true)
 ![Sample predicted mask 3](images/pred_mask_img_0035.png?raw=true)
@@ -48,6 +48,7 @@ streamlit run src/inference_live_demo.py
 ## Quantitative results
 
 * The best model's class-wise and mean IoU performance is presented below.
+
 class  |  class IoU (%)  |
 -------|-----------------|
 sea surface  |  96.422  |
