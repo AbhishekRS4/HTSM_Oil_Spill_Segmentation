@@ -5,6 +5,7 @@
 * This repo contains the project work done as part of the [HTSM Masterwork](https://www.rug.nl/education/honours-college/htsm-masterprogramme/about-the-programme) at [University of Groningen](https://www.rug.nl/).
 * Research work carried as part of the HTSM Masterwork to train deep learning CNN model for segmentation task to detect oil spills from the satellite
 Synthetic Aperture Radar (SAR) data.
+* This research is towards application of AI for good, particularly towards conservation of nature with AI.
 
 
 ## Dataset information
