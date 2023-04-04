@@ -6,6 +6,7 @@
 * Research work carried as part of the HTSM Masterwork to train deep learning CNN model for segmentation task to detect oil spills from the satellite
 Synthetic Aperture Radar (SAR) data.
 * This research is towards application of AI for good, particularly towards conservation of nature with AI.
+* This project was done under the supervision of [Mr. Maruf A. Dhali](https://www.rug.nl/staff/m.a.dhali/)
 
 
 ## Dataset information
