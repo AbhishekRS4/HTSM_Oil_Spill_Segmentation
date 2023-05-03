@@ -1,4 +1,5 @@
-# HTSM Masterwork - Oil Spill Detection using Semantic Segmentation
+# Oil Spill Segmentation using Deep Encoder-Decoder models
+##### [Abhishek Ramanathapura Satyanarayana](https://orcid.org/0009-0003-1248-0988), [Maruf A. Dhali](https://orcid.org/0000-0002-7548-3858)
 
 
 ## Paper available on ArXiv
