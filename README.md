@@ -1,6 +1,9 @@
 # HTSM Masterwork - Oil Spill Detection using Semantic Segmentation
 
 
+## Paper available on ArXiv
+* The results of this research is available in the [ArXiv paper](https://arxiv.org/abs/2305.01386).
+
 ## Info about the project
 * This repo contains the project work done as part of the [HTSM Masterwork](https://www.rug.nl/education/honours-college/htsm-masterprogramme/about-the-programme) at [University of Groningen](https://www.rug.nl/).
 * Research work carried as part of the HTSM Masterwork to train deep learning CNN model for segmentation task to detect oil spills from the satellite
@@ -46,6 +49,7 @@ streamlit run src/inference_live_demo.py
 ![Sample predicted mask 3](images/pred_mask_img_0035.png?raw=true)
 ![Sample predicted mask 4](images/pred_mask_img_0054.png?raw=true)
 ![Sample predicted mask 5](images/pred_mask_img_0105.png?raw=true)
+* Since the dataset is not publicly available, the original images are not uploaded but only the predictions are uploaded.
 
 
 ## Quantitative results
