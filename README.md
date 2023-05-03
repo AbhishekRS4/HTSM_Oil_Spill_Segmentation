@@ -49,7 +49,7 @@ streamlit run src/inference_live_demo.py
 ![Sample predicted mask 3](images/pred_mask_img_0035.png?raw=true)
 ![Sample predicted mask 4](images/pred_mask_img_0054.png?raw=true)
 ![Sample predicted mask 5](images/pred_mask_img_0105.png?raw=true)
-* Since the dataset is not publicly available, the original images are not uploaded but only the predictions are uploaded.
+* Since the dataset is not publicly available, the original test set images from the dataset are not uploaded but only their predictions are included in the repo.
 
 
 ## Quantitative results
