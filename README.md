@@ -43,11 +43,11 @@ with the mean and std. dev. of images in the training set.
 ## Docker deployment instructions
 * The deployment app is developed using streamlit.
 * The detailed python package requirements can be found in [src/requirements_deployment.txt](src/requirements_deployment.txt).
-* To build the container, run the following command
+* To build the container, run the following command inside `src` directory
 ```
 docker build -t app_oil_spill .
 ```
-* To the run the container, run the following command
+* To the run the container, run the following command inside `src` directory
 ```
 docker run -p 8000:8000 -t app_oil_spill
 ```
