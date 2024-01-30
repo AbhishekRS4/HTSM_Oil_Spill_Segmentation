@@ -18,31 +18,40 @@ Synthetic Aperture Radar (SAR) data.
 * This dataset contains labels for 5 classes --- sea surface, oil spill, oil spill look-alike, ship, and land.
 * ThIs dataset is a relatively smaller dataset when compared to other popular benchmark datasets for the segmentation task.
 
-## Required dependencies
+## Required dependencies for training
 * To install pytorch use the following command
 ```
 pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
 ```
-* The other required dependencies are available in [requirements.txt](requirements.txt).
+* The other required dependencies for training are available in [requirements.txt](requirements.txt).
 
 
-## Instructions to run the code
+## Instructions to run the code for training
 * For any python script, use the following to list all the command-line options
 ```
 python3 script_name.py --help
 ```
-* Run the script [src/compute_stats_for_train.py](src/compute_stats_for_train.py) to
-compute the statistics for training set. This will generate [src/image_stats.json](src/image_stats.json)
+* Run the script [src/training/compute_stats_for_train.py](src/training/compute_stats_for_train.py) to
+compute the statistics for training set. This will generate [src/training/image_stats.json](src/training/image_stats.json)
 with the mean and std. dev. of images in the training set.
-* To train the models, run the script [src/train.py](src/train.py).
-* To compute the k-fold validation metrics, run the script [src/compute_kfold_validation_metrics.py](src/compute_kfold_validation_metrics.py).
-* Run the notebook [src/EDA.ipynb](src/EDA.ipynb) or the script [src/exploratory_data_analysis.py](src/exploratory_data_analysis.py) to generate the plot of class distribution in the dataset.
-* For plotting the variation of loss, accuracy, IoU during the training phase, use the notebook [src/plot_graphs.ipynb](src/plot_graphs.ipynb).
-* To infer on the test set, run the script [src/inference.py](src/inference.py).
-* To run the inference live demo, run the script [src/inference_live_demo.py](src/inference_live_demo.py) using the following command
+* To train the models, run the script [src/training/train.py](src/training/train.py).
+* To compute the k-fold validation metrics, run the script [src/training/compute_kfold_validation_metrics.py](src/training/compute_kfold_validation_metrics.py).
+* Run the notebook [src/training/EDA.ipynb](src/training/EDA.ipynb) or the script [src/training/exploratory_data_analysis.py](src/training/exploratory_data_analysis.py) to generate the plot of class distribution in the dataset.
+* For plotting the variation of loss, accuracy, IoU during the training phase, use the notebook [src/training/plot_graphs.ipynb](src/training/plot_graphs.ipynb).
+* To infer on the test set, run the script [src/training/inference.py](src/training/inference.py).
+
+## Docker deployment instructions
+* The deployment app is developed using streamlit.
+* The detailed python package requirements can be found in [src/requirements_deployment.txt](src/requirements_deployment.txt).
+* To build the container, run the following command
 ```
-streamlit run src/inference_live_demo.py
+docker build -t app_oil_spill .
 ```
+* To the run the container, run the following command
+```
+docker run -p 8000:8000 -t app_oil_spill
+```
+
 
 ## Qualitative results - sample test set predictions
 ![Sample predicted mask 1](images/pred_mask_img_0001.png?raw=true)
