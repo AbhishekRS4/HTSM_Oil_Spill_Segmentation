@@ -1,0 +1,14 @@
+torch==1.12.1
+torchvision==0.13.1
+torchsummary==1.5.1
+typing-extensions==4.4.0
+numpy==1.23.5
+Pillow==9.3.0
+scikit-image==0.19.3
+scikit-learn==1.2.0
+opencv-python-headless==4.6.0.66
+matplotlib==3.6.2
+jupyter==1.0.0
+pandas==1.5.2
+altair==4.0
+streamlit==1.17.0
