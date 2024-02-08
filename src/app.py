@@ -2,6 +2,10 @@ import os
 import numpy as np
 import streamlit as st
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+
 import torch
 from PIL import Image
 from skimage.io import imread
@@ -79,6 +83,18 @@ def run_inference(image_array, file_weights, num_classes=5, file_stats_json="tra
 
     return pred_mask_arr
 
+def show_mask_interpretation():
+    colors = ["#000000", "#00FFFF", "#FF0000", "#994C00", "#009900"]
+    labels = ["sea_surface", "oil_spill", "oil_spill_look_alike", "ship", "land"]
+    my_cmap = ListedColormap(colors, name="my_cmap")
+    data = [[1, 2, 3, 4, 5]]
+    fig = plt.figure(figsize=(20, 2))
+    plt.title("Oil Spill mask interpretation")
+    plt.xticks(ticks=np.arange(len(labels)), labels=labels)
+    plt.imshow(data, cmap=my_cmap)
+    st.pyplot(fig)
+    return
+
 def infer():
     st.title("Oil spill detection app")
 
@@ -102,7 +118,7 @@ def infer():
         st.write("Input image: not selected")
 
     # select a mask image file
-    mask_file_buffer = st.sidebar.file_uploader("Select mask image", type=["png"])
+    mask_file_buffer = st.sidebar.file_uploader("Select mask image (optional, only for visual comparison with the prediction)", type=["png"])
     # read the mask
     if mask_file_buffer is not None:
         mask = Image.open(mask_file_buffer)
@@ -116,6 +132,7 @@ def infer():
     if infer_button:
         mask_predicted = run_inference(image_array, file_weights)
         st.image(mask_predicted, caption=f"Predicted mask for the input: {image_file_buffer.name}")
+        show_mask_interpretation()
     return
 
 def main():
