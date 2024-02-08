@@ -41,8 +41,8 @@ with the mean and std. dev. of images in the training set.
 * To infer on the test set, run the script [src/training/inference.py](src/training/inference.py).
 
 ## Docker deployment instructions
-* The deployment app is developed using streamlit.
-* The detailed python package requirements can be found in [src/requirements_deployment.txt](src/requirements_deployment.txt).
+* The streamlit [app](src/app.py) has been developed for deployment.
+* The detailed python package requirements for the streamlit app can be found in [src/requirements_deployment.txt](src/requirements_deployment.txt).
 * To build the container, run the following command inside `src` directory
 ```
 docker build -t app_oil_spill .
