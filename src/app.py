@@ -1,4 +1,5 @@
 import os
+import io
 import numpy as np
 import streamlit as st
 
@@ -132,11 +133,42 @@ def infer():
     if infer_button:
         mask_predicted = run_inference(image_array, file_weights)
         st.image(mask_predicted, caption=f"Predicted mask for the input: {image_file_buffer.name}")
+
+        # option to download predicted mask
+        mask_pred_image = Image.fromarray(mask_predicted.astype("uint8"), "RGB")
+        with io.BytesIO() as file_obj:
+            mask_pred_image.save(file_obj, format="PNG")
+            mask_for_download = file_obj.getvalue()
+        st.download_button("Download predicted mask", data=mask_for_download, file_name="pred_mask.png", mime="image/png")
+
+        # display a figure showing the interpretation of the mask labels
         show_mask_interpretation()
     return
 
+def app_info():
+    st.title("App info")
+    st.markdown("_Task - Oil Spill segmentation_")
+    st.markdown("_Project repo - [https://github.com/AbhishekRS4/HTSM_Oil_Spill_Segmentation](https://github.com/AbhishekRS4/HTSM_Oil_Spill_Segmentation)_")
+    st.markdown("_Dataset - [Oil Spill detection dataset](https://m4d.iti.gr/oil-spill-detection-dataset/)_")
+    st.header("Brief description of the project and the dataset")
+    st.write("The Oil Spill detection dataset contains images extracted from satellite Synthetic Aperture Radar (SAR) data.")
+    st.write("This dataset contains labels for 5 classes --- sea_surface, oil_spill, oil_spill_look_alike, ship, and land.")
+    st.write("A custom encoder-decoder architecture is modeled for the segmentation task.")
+    st.write("The best performing model has been used for the deployed application.")
+    return
+
+app_modes = {
+    "App Info" : app_info,
+    "Oil Spill Inference App": infer,
+}
+
+def start_app():
+    selected_mode = st.sidebar.selectbox("Select mode", list(app_modes.keys()))
+    app_modes[selected_mode]()
+    return
+
 def main():
-    infer()
+    start_app()
     return
 
 if __name__ == "__main__":
