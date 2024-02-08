@@ -53,7 +53,7 @@ docker run -p 8000:8000 -t app_oil_spill
 ```
 
 ## Huggingface deployment
-* A streamlit application has been deployed to [Huggingface](https://huggingface.co/spaces/abhishekrs4/Oil_Spill_Segmentation)
+* A streamlit application, with the best performing model, has been deployed to [Huggingface](https://huggingface.co/spaces/abhishekrs4/Oil_Spill_Segmentation)
 
 
 ## Qualitative results - sample test set predictions
