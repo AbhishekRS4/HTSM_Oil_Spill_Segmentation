@@ -36,7 +36,15 @@ def load_dict_from_json(file_json):
 
 class CSVWriter:
     """
-    for writing tabular data to a csv file
+    CSVWriter class for writing tabular data to a csv file
+    ----------
+    Attributes
+    ----------
+    file_name : str
+        file name of the csv file
+    column_names : list
+        a list of column names
+
     """
     def __init__(self, file_name, column_names):
         self.file_name = file_name
@@ -58,6 +66,11 @@ class CSVWriter:
     def write_row(self, row):
         """
         writes a row into csv file
+        ---------
+        Arguments
+        ---------
+        row : list
+            a list of row values
         """
         self.writer.writerow(row)
         return

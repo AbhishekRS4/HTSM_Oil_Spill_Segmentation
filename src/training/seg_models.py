@@ -8,6 +8,15 @@ from encoder_models import resnet18, resnet34, resnet50, resnet101, efficientnet
 
 class ResNet18DeepLabV3Plus(nn.Module):
     def __init__(self, num_classes, pretrained=True):
+        """
+        ----------
+        Attributes
+        ----------
+        num_classes : int
+            number of classes in the dataset
+        pretrained : bool
+            indicates whether to load pretrained weights for the encoder model (default: True)
+        """
         super().__init__()
 
         self.encoder = resnet18(pretrained=pretrained)
@@ -22,6 +31,15 @@ class ResNet18DeepLabV3Plus(nn.Module):
 
 class ResNet34DeepLabV3Plus(nn.Module):
     def __init__(self, num_classes, pretrained=True):
+        """
+        ----------
+        Attributes
+        ----------
+        num_classes : int
+            number of classes in the dataset
+        pretrained : bool
+            indicates whether to load pretrained weights for the encoder model (default: True)
+        """
         super().__init__()
 
         self.encoder = resnet34(pretrained=pretrained)
@@ -36,6 +54,15 @@ class ResNet34DeepLabV3Plus(nn.Module):
 
 class ResNet50DeepLabV3Plus(nn.Module):
     def __init__(self, num_classes, pretrained=True):
+        """
+        ----------
+        Attributes
+        ----------
+        num_classes : int
+            number of classes in the dataset
+        pretrained : bool
+            indicates whether to load pretrained weights for the encoder model (default: True)
+        """
         super().__init__()
 
         self.encoder = resnet50(pretrained=pretrained)
@@ -50,6 +77,15 @@ class ResNet50DeepLabV3Plus(nn.Module):
 
 class ResNet101DeepLabV3Plus(nn.Module):
     def __init__(self, num_classes, pretrained=True):
+        """
+        ----------
+        Attributes
+        ----------
+        num_classes : int
+            number of classes in the dataset
+        pretrained : bool
+            indicates whether to load pretrained weights for the encoder model (default: True)
+        """
         super().__init__()
 
         self.encoder = resnet101(pretrained=pretrained)
@@ -64,6 +100,15 @@ class ResNet101DeepLabV3Plus(nn.Module):
 
 class EfficientNetSDeepLabV3(nn.Module):
     def __init__(self, num_classes, pretrained=True):
+        """
+        ----------
+        Attributes
+        ----------
+        num_classes : int
+            number of classes in the dataset
+        pretrained : bool
+            indicates whether to load pretrained weights for the encoder model (default: True)
+        """
         super().__init__()
 
         self.encoder = efficientnet_v2_s(pretrained=pretrained)
@@ -81,6 +126,15 @@ class EfficientNetSDeepLabV3(nn.Module):
 
 class EfficientNetMDeepLabV3(nn.Module):
     def __init__(self, num_classes, pretrained=True):
+        """
+        ----------
+        Attributes
+        ----------
+        num_classes : int
+            number of classes in the dataset
+        pretrained : bool
+            indicates whether to load pretrained weights for the encoder model (default: True)
+        """
         super().__init__()
 
         self.encoder = efficientnet_v2_m(pretrained=pretrained)
@@ -98,6 +152,15 @@ class EfficientNetMDeepLabV3(nn.Module):
 
 class EfficientNetLDeepLabV3(nn.Module):
     def __init__(self, num_classes, pretrained=True):
+        """
+        ----------
+        Attributes
+        ----------
+        num_classes : int
+            number of classes in the dataset
+        pretrained : bool
+            indicates whether to load pretrained weights for the encoder model (default: True)
+        """
         super().__init__()
 
         self.encoder = efficientnet_v2_l(pretrained=pretrained)

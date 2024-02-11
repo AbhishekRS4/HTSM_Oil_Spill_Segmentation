@@ -5,6 +5,25 @@ from skimage.io import imread
 
 class ImagePadder:
     def __init__(self, dir_images, pad_left=15, pad_right=15, pad_top=11, pad_bottom=11, file_anchor_image="img_0814.jpg"):
+        """
+        ImagePadder class for padding images
+
+        ----------
+        Attributes
+        ----------
+        dir_images : str
+            full directory path containing images
+        pad_left : int
+            number of pixels to be padded to the left of the input image (default: 15)
+        pad_right : int
+            number of pixels to be padded to the right of the input image (default: 15)
+        pad_top : int
+            number of pixels to be padded to the top of the input image (default: 11)
+        pad_bottom : int
+            number of pixels to be padded to the bottom of the input image (default: 11)
+        file_anchor_image : str
+            file with anchor image whose pixels will be used as a reference for padding (default: "img_0814.jpg")
+        """
         self._anchor_image = imread(os.path.join(dir_images, file_anchor_image))
         self._anchor_image_shape = self._anchor_image.shape
         self._pad_left = pad_left

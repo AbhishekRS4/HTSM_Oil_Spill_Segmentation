@@ -19,6 +19,25 @@ from training.logger_utils import load_dict_from_json
 from training.dataset import get_dataloader_for_inference
 
 def run_inference(image_array, file_weights, num_classes=5, file_stats_json="training/image_stats.json"):
+    """
+    ---------
+    Arguments
+    ---------
+    image_array : ndarray
+        a numpy array of the image
+    file_weights : str
+        full path to weights file
+    num_classes : int
+        number of classes in the dataset
+    file_stats_json : str
+        full path to the json stats file for preprocessing
+
+    -------
+    Returns
+    -------
+    pred_mask_arr : ndarray
+        a numpy array of the prediction mask
+    """
     oil_spill_seg_model = ResNet50DeepLabV3Plus(
         num_classes=num_classes, pretrained=True
     )

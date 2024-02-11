@@ -19,6 +19,23 @@ from logger_utils import CSVWriter, write_dict_to_json
 from torch.optim.lr_scheduler import _LRScheduler
 
 class PolynomialLR(_LRScheduler):
+    """
+    PolynomialLR class for the polynomial learning rate scheduler
+
+    ----------
+    Attributes
+    ----------
+    optimizer : object
+        object of type optimizer
+    max_epochs : int
+        maximum number of epochs for which optimization needs to be run
+    power : float
+        the power term in the polynomial learning rate scheduler (default: 0.9)
+    last_epoch : int
+        last epoch in the optimization (default: -1)
+    min_lr : float
+        minimum value for the learning rate (default: 1e-6)
+    """
     def __init__(self, optimizer, max_epochs, power=0.9, last_epoch=-1, min_lr=1e-6):
         self.power = power
         self.max_epochs = max_epochs
@@ -30,6 +47,25 @@ class PolynomialLR(_LRScheduler):
                 for base_lr in self.base_lrs]
 
 def validation_loop(dataset_loader, model, ce_loss, device):
+    """
+    ---------
+    Arguments
+    ---------
+    dataset_loader : object
+        object of type dataloader
+    model : object
+        object of type model
+    ce_loss : object
+        object of type cross entropy loss
+    device : str
+        device on which training needs to be run
+
+    -------
+    Returns
+    -------
+    (valid_loss, valid_acc, valid_IOU) : tuple
+        a tuples of torch floats of mean loss, mean accuracy, mean IoU for the validation set
+    """
     model.eval()
     size = len(dataset_loader.dataset)
     num_batches = len(dataset_loader)
@@ -55,6 +91,27 @@ def validation_loop(dataset_loader, model, ce_loss, device):
     return valid_loss, valid_acc, valid_IOU
 
 def train_loop(dataset_loader, model, ce_loss, optimizer, device):
+    """
+    ---------
+    Arguments
+    ---------
+    dataset_loader : object
+        object of type dataloader
+    model : object
+        object of type model
+    ce_loss : object
+        object of type cross entropy loss
+    optimizer : object
+        object of type optimizer
+    device : str
+        device on which training needs to be run
+
+    -------
+    Returns
+    -------
+    train_loss : torch float
+        mean loss for the training set
+    """
     model.train()
     size = len(dataset_loader.dataset)
     num_batches = len(dataset_loader)

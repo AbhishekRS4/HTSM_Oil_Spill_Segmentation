@@ -27,6 +27,29 @@ class CustomResNet(nn.Module):
         replace_stride_with_dilation=None,
         norm_layer=None,
     ):
+        """
+        CustomResNet class to build the CustomResNet encoder model
+
+        ----------
+        Attributes
+        ----------
+        layers : list
+            list of number of layers in each residual block
+        block : object of block type
+            type of the residual block (options = [BasicBlock, Bottleneck])
+        zero_init_residual : bool
+            to indicate whether to use zero weights for BN
+        groups : int
+            indicates the number of groups (default: 1)
+        num_classes : int
+            indicates the number of classes (default: 1000)
+        width_per_group : int
+            indicates the width per group (default: 64)
+        replace_stride_with_dilation : list
+            a list indicating whether to replace stride with dilation (default: None)
+        norm_layer : object
+            object of type batch norm (default: None)
+        """
 
         super(CustomResNet, self).__init__()
 
@@ -120,6 +143,19 @@ class CustomResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        """
+        ---------
+        Arguments
+        ---------
+        x : torch tensor
+            a tensor of input features
+
+        -------
+        Returns
+        -------
+        x : torch tensor
+            output of the CustomResNet
+        """
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -135,6 +171,25 @@ class CustomResNet(nn.Module):
         return x
 
 def _resnet(block_type, layers, weights=None, progress=True):
+    """
+    ---------
+    Arguments
+    ---------
+    block_type : object
+        object of type block
+    layers : list
+        list of layers in each residual block
+    weights : object
+        object of type ResNet weights
+    progress : bool
+        indicates whether to show progress or not
+
+    -------
+    Returns
+    -------
+    model : object
+        model object of type CustomResNet
+    """
     model = CustomResNet(layers, block_type)
 
     if weights is not None:
@@ -146,8 +201,11 @@ def resnet18(pretrained=True):
     r"""ResNet-18 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
 
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    ---------
+    Arguments
+    ---------
+    pretrained : bool
+        if True, returns a model pre-trained on ImageNet
     """
     if pretrained:
         weights = ResNet18_Weights.IMAGENET1K_V1
@@ -159,8 +217,11 @@ def resnet34(pretrained=True):
     r"""ResNet-34 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
 
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    ---------
+    Arguments
+    ---------
+    pretrained : bool
+        if True, returns a model pre-trained on ImageNet
     """
     if pretrained:
         weights = ResNet34_Weights.IMAGENET1K_V1
@@ -172,8 +233,11 @@ def resnet50(pretrained=True):
     r"""ResNet-50 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
 
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    ---------
+    Arguments
+    ---------
+    pretrained : bool
+        if True, returns a model pre-trained on ImageNet
     """
     if pretrained:
         weights = ResNet50_Weights.IMAGENET1K_V1
@@ -186,8 +250,11 @@ def resnet101(pretrained=True):
     r"""ResNet-101 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
 
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    ---------
+    Arguments
+    ---------
+    pretrained : bool
+        if True, returns a model pre-trained on ImageNet
     """
     if pretrained:
         weights = ResNet101_Weights.IMAGENET1K_V1
@@ -209,13 +276,22 @@ class CustomEfficientNet(nn.Module):
     ):
         """
         EfficientNet V1 and V2 main class
-        Args:
-            inverted_residual_setting (Sequence[Union[MBConvConfig, FusedMBConvConfig]]): Network structure
-            dropout (float): The droupout probability
-            stochastic_depth_prob (float): The stochastic depth probability
-            num_classes (int): Number of classes
-            norm_layer (Optional[Callable[..., nn.Module]]): Module specifying the normalization layer to use
-            last_channel (int): The number of channels on the penultimate layer
+
+        ----------
+        Attributes
+        ----------
+            inverted_residual_setting : Sequence
+                network structure
+            dropout : float
+                the droupout probability
+            stochastic_depth_prob : float
+                the stochastic depth probability
+            num_classes : int
+                number of classes
+            norm_layer : object
+                object of type Module specifying the normalization layer to use
+            last_channel : int
+                the number of channels on the penultimate layer
         """
         super().__init__()
         self.dict_encoder_features = {}
@@ -321,6 +397,23 @@ def _efficientnet(
     progress=True,
     **kwargs: Any,
     ):
+    """
+    ---------
+    Arguments
+    ---------
+        inverted_residual_setting : Sequence
+            network structure
+        dropout : float
+            the droupout probability
+        last_channel : last_channel
+            the last channel
+        weights : object
+            object of type efficient_net weights
+        norm_layer : object
+            object of type Module specifying the normalization layer to use
+        progress : bool
+            indicates whether to show progress or not
+    """
     model = CustomEfficientNet(
         inverted_residual_setting,
         dropout,
@@ -335,6 +428,15 @@ def _efficientnet(
     return model
 
 def efficientnet_v2_s(pretrained=True, **kwargs: Any):
+    """
+    ---------
+    Arguments
+    ---------
+    pretrained : bool
+        if True, returns a model pre-trained on ImageNet
+    **kwargs :
+        additional arguments
+    """
     which_efficientnet = "efficientnet_v2_s"
     inverted_residual_setting, last_channel = _efficientnet_conf(which_efficientnet)
     if pretrained:
@@ -350,6 +452,15 @@ def efficientnet_v2_s(pretrained=True, **kwargs: Any):
     )
 
 def efficientnet_v2_m(pretrained=True, **kwargs: Any):
+    """
+    ---------
+    Arguments
+    ---------
+    pretrained : bool
+        if True, returns a model pre-trained on ImageNet
+    **kwargs :
+        additional arguments
+    """
     which_efficientnet = "efficientnet_v2_m"
     inverted_residual_setting, last_channel = _efficientnet_conf(which_efficientnet)
     if pretrained:
@@ -365,6 +476,15 @@ def efficientnet_v2_m(pretrained=True, **kwargs: Any):
     )
 
 def efficientnet_v2_l(pretrained=True, **kwargs: Any):
+    """
+    ---------
+    Arguments
+    ---------
+    pretrained : bool
+        if True, returns a model pre-trained on ImageNet
+    **kwargs :
+        additional arguments
+    """
     which_efficientnet = "efficientnet_v2_l"
     inverted_residual_setting, last_channel = _efficientnet_conf(which_efficientnet)
     if pretrained:

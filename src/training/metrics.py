@@ -6,6 +6,21 @@ import torch.nn.functional as F
 
 # compute mean pixel accuracy
 def compute_mean_pixel_acc(true_label, pred_label):
+    """
+    ---------
+    Arguments
+    ---------
+    true_label : ndarray
+        a numpy array of groundtruth label
+    pred_label : ndarray
+        a numpy array of prediction label
+
+    -------
+    Returns
+    -------
+    mean_pixel_accuracy : float
+        mean pixel accuracy
+    """
     if true_label.shape != pred_label.shape:
         print("true_label has dimension", true_label.shape, ", pred_label values have shape", pred_label.shape)
         return
@@ -33,6 +48,23 @@ def compute_mean_pixel_acc(true_label, pred_label):
 
 # compute mean IOU
 def compute_mean_IOU(true_label, pred_label, num_classes=5):
+    """
+    ---------
+    Arguments
+    ---------
+    true_label : ndarray
+        a numpy array of groundtruth label
+    pred_label : ndarray
+        a numpy array of prediction label
+    num_classes : int
+        number of classes in the dataset (default: 5)
+
+    -------
+    Returns
+    -------
+    mean_iou : float
+        mean IoU
+    """
     iou_list = list()
     present_iou_list = list()
 
@@ -55,6 +87,24 @@ def compute_mean_IOU(true_label, pred_label, num_classes=5):
     return np.mean(present_iou_list)
 
 def compute_class_IOU(true_label, pred_label, num_classes=5):
+    """
+    ---------
+    Arguments
+    ---------
+    true_label : ndarray
+        a numpy array of groundtruth label
+    pred_label : ndarray
+        a numpy array of prediction label
+    num_classes : int
+        number of classes in the dataset (default: 5)
+
+
+    -------
+    Returns
+    -------
+    per_class_iou : ndarray
+        a numpy array of per class IoU
+    """
     iou_list = list()
     present_iou_list = list()
 

@@ -15,12 +15,41 @@ from seg_models import *
 from dataset import get_dataloader_for_inference
 
 def create_directory(dir_path):
+    """
+    ---------
+    Arguments
+    ---------
+    dir_path : str
+        full directory path that needs to be created if it does not exist
+    """
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
         print(f"Created directory: {dir_path}")
     return
 
 def inference_loop(dataset_loader, list_images, model, dir_labels, dir_masks, num_classes, device, image_format=".png"):
+    """
+    ---------
+    Arguments
+    ---------
+    dataset_loader : object
+        object of type dataloader
+    list_images : list
+        list of images for which the inference needs to be run
+    model : object
+        object of type model
+    dir_labels : str
+        full directory path to save prediction labels
+    dir_masks : str
+        full directory path to save prediction masks
+    num_classes : int
+        number of classes in the dataset
+    device : str
+        device on which inference needs to be run
+    image_format : str
+        the extension format of the images (default: ".png")
+    """
+
     #  for lossless, always save labels and masks as png and not as jpeg
     model.eval()
     size = len(dataset_loader.dataset)

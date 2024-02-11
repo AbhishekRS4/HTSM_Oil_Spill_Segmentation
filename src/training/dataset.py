@@ -13,6 +13,21 @@ from logger_utils import load_dict_from_json
 
 class M4DSAROilSpillDataset(Dataset):
     def __init__(self, dir_data, list_images, which_set="train", file_stats_json="image_stats.json"):
+        """
+        M4DSAROilSpillDataset class to load satellite image dataset
+
+        ----------
+        Attributes
+        ----------
+        dir_data : str
+            valid full directory path of the dataset
+        list_images : list
+            list of images in the directory
+        which_set : str
+            string indicates which set to be loaded (options = ["train", "test"])
+        file_stats_json : str
+            json file with image stats
+        """
         self.dir_data = dir_data
         self.which_set = which_set
         self.file_stats_json = file_stats_json
@@ -56,9 +71,29 @@ class M4DSAROilSpillDataset(Dataset):
 
 
     def __len__(self):
+        """
+        -------
+        Returns
+        -------
+        length : int
+            number of images in the dataset list
+        """
         return len(self._list_images)
 
     def __getitem__(self, idx):
+        """
+        ---------
+        Arguments
+        ---------
+        idx : int
+            index of the file
+
+        -------
+        Returns
+        -------
+        (image, label) : tuple of torch tensors
+            tuple of normalized image and label torch tensors
+        """
         file_image = os.path.join(self._dir_images, self._list_images[idx])
         file_label = os.path.join(self._dir_labels, self._list_labels[idx])
 
@@ -94,6 +129,25 @@ class M4DSAROilSpillDataset(Dataset):
         return image, label
 
 def get_dataloaders_for_training(dir_dataset, batch_size, random_state=None, num_workers=4):
+    """
+    ---------
+    Arguments
+    ---------
+    dir_dataset : str
+        full path to dataset directory
+    batch_size : int
+        batch size to be used
+    random_state : int
+        random state to be used for train / validation set split (default: None)
+    num_workers : int
+        number of workers to be used for dataloader (default: 4)
+
+    -------
+    Returns
+    -------
+    (train_dataset_loader, valid_dataset_loader) : tuple
+        tuple of torch dataloaders
+    """
     list_images = sorted(
         [f for f in os.listdir(os.path.join(dir_dataset, "train", "images")) if f.endswith(".jpg")]
     )
@@ -130,6 +184,23 @@ def get_dataloaders_for_training(dir_dataset, batch_size, random_state=None, num
     return train_dataset_loader, valid_dataset_loader
 
 def get_dataloader_for_inference(dir_dataset, batch_size=1, num_workers=4):
+    """
+    ---------
+    Arguments
+    ---------
+    dir_dataset : str
+        full path to dataset directory
+    batch_size : int
+        batch size to be used (default: 1)
+    num_workers : int
+        number of workers to be used for dataloader (default: 4)
+
+    -------
+    Returns
+    -------
+    (inference_dataset_loader, list_inference_images) : tuple
+        tuple of torch dataloader and a list of inference images
+    """
     list_inference_images = sorted(
         [f for f in os.listdir(os.path.join(dir_dataset, "test", "images")) if f.endswith(".jpg")]
     )
