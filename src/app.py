@@ -119,14 +119,14 @@ def infer():
         st.write("Input image: not selected")
 
     # select a mask image file
-    mask_file_buffer = st.sidebar.file_uploader("Select mask image (optional, only for visual comparison with the prediction)", type=["png"])
+    mask_file_buffer = st.sidebar.file_uploader("Select groundtruth mask image (optional, only for visual comparison with the prediction)", type=["png"])
     # read the mask
     if mask_file_buffer is not None:
         mask = Image.open(mask_file_buffer)
         mask_array = np.array(mask)
         st.image(mask_array, caption=f"Mask image: {mask_file_buffer.name}")
     else:
-        st.write("Mask image: not selected")
+        st.write("Groundtruth mask image (optional): not selected")
 
     # run inference when the option is invoked by the user
     infer_button = st.sidebar.button("Run inference")
