@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>training package &mdash; Oil Spill Segmentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="app module" href="app.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Oil Spill Segmentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="app.html">app module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">training package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.compute_kfold_validation_metrics">training.compute_kfold_validation_metrics module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.compute_kfold_validation_metrics.compute_kfold_validation_metrics"><code class="docutils literal notranslate"><span class="pre">compute_kfold_validation_metrics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.compute_kfold_validation_metrics.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.compute_stats_for_train">training.compute_stats_for_train module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.compute_stats_for_train.compute_stats"><code class="docutils literal notranslate"><span class="pre">compute_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.compute_stats_for_train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.dataset">training.dataset module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.dataset.M4DSAROilSpillDataset"><code class="docutils literal notranslate"><span class="pre">M4DSAROilSpillDataset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.dataset.get_dataloader_for_inference"><code class="docutils literal notranslate"><span class="pre">get_dataloader_for_inference()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.dataset.get_dataloaders_for_training"><code class="docutils literal notranslate"><span class="pre">get_dataloaders_for_training()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.decoder_models">training.decoder_models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.decoder_models.ASPPBlock"><code class="docutils literal notranslate"><span class="pre">ASPPBlock</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.decoder_models.ASPPConvLayer"><code class="docutils literal notranslate"><span class="pre">ASPPConvLayer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.decoder_models.ASPPPoolingLayer"><code class="docutils literal notranslate"><span class="pre">ASPPPoolingLayer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.decoder_models.DeepLabV3"><code class="docutils literal notranslate"><span class="pre">DeepLabV3</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.decoder_models.DeepLabV3Plus"><code class="docutils literal notranslate"><span class="pre">DeepLabV3Plus</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.encoder_models">training.encoder_models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.CustomEfficientNet"><code class="docutils literal notranslate"><span class="pre">CustomEfficientNet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.CustomResNet"><code class="docutils literal notranslate"><span class="pre">CustomResNet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.efficientnet_v2_l"><code class="docutils literal notranslate"><span class="pre">efficientnet_v2_l()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.efficientnet_v2_m"><code class="docutils literal notranslate"><span class="pre">efficientnet_v2_m()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.efficientnet_v2_s"><code class="docutils literal notranslate"><span class="pre">efficientnet_v2_s()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.resnet101"><code class="docutils literal notranslate"><span class="pre">resnet101()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.resnet18"><code class="docutils literal notranslate"><span class="pre">resnet18()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.resnet34"><code class="docutils literal notranslate"><span class="pre">resnet34()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.encoder_models.resnet50"><code class="docutils literal notranslate"><span class="pre">resnet50()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.exploratory_data_analysis">training.exploratory_data_analysis module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.exploratory_data_analysis.do_exploratory_data_analysis"><code class="docutils literal notranslate"><span class="pre">do_exploratory_data_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.exploratory_data_analysis.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.image_preprocessing">training.image_preprocessing module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.image_preprocessing.ImagePadder"><code class="docutils literal notranslate"><span class="pre">ImagePadder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.inference">training.inference module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.inference.create_directory"><code class="docutils literal notranslate"><span class="pre">create_directory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.inference.inference_loop"><code class="docutils literal notranslate"><span class="pre">inference_loop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.inference.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.inference.run_inference"><code class="docutils literal notranslate"><span class="pre">run_inference()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.logger_utils">training.logger_utils module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.logger_utils.CSVWriter"><code class="docutils literal notranslate"><span class="pre">CSVWriter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.logger_utils.load_dict_from_json"><code class="docutils literal notranslate"><span class="pre">load_dict_from_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.logger_utils.write_dict_to_json"><code class="docutils literal notranslate"><span class="pre">write_dict_to_json()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.metrics">training.metrics module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.metrics.compute_class_IOU"><code class="docutils literal notranslate"><span class="pre">compute_class_IOU()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.metrics.compute_mean_IOU"><code class="docutils literal notranslate"><span class="pre">compute_mean_IOU()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.metrics.compute_mean_pixel_acc"><code class="docutils literal notranslate"><span class="pre">compute_mean_pixel_acc()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.seg_models">training.seg_models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.seg_models.EfficientNetLDeepLabV3"><code class="docutils literal notranslate"><span class="pre">EfficientNetLDeepLabV3</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.seg_models.EfficientNetMDeepLabV3"><code class="docutils literal notranslate"><span class="pre">EfficientNetMDeepLabV3</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.seg_models.EfficientNetSDeepLabV3"><code class="docutils literal notranslate"><span class="pre">EfficientNetSDeepLabV3</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.seg_models.ResNet101DeepLabV3Plus"><code class="docutils literal notranslate"><span class="pre">ResNet101DeepLabV3Plus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.seg_models.ResNet18DeepLabV3Plus"><code class="docutils literal notranslate"><span class="pre">ResNet18DeepLabV3Plus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.seg_models.ResNet34DeepLabV3Plus"><code class="docutils literal notranslate"><span class="pre">ResNet34DeepLabV3Plus</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.seg_models.ResNet50DeepLabV3Plus"><code class="docutils literal notranslate"><span class="pre">ResNet50DeepLabV3Plus</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.summarize_model">training.summarize_model module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.summarize_model.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.summarize_model.summarize_model"><code class="docutils literal notranslate"><span class="pre">summarize_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training.train">training.train module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#training.train.PolynomialLR"><code class="docutils literal notranslate"><span class="pre">PolynomialLR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.train.batch_train"><code class="docutils literal notranslate"><span class="pre">batch_train()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.train.train_loop"><code class="docutils literal notranslate"><span class="pre">train_loop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#training.train.validation_loop"><code class="docutils literal notranslate"><span class="pre">validation_loop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-training">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Oil Spill Segmentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">training package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/training.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="training-package">
+<h1>training package<a class="headerlink" href="#training-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-training.compute_kfold_validation_metrics">
+<span id="training-compute-kfold-validation-metrics-module"></span><h2>training.compute_kfold_validation_metrics module<a class="headerlink" href="#module-training.compute_kfold_validation_metrics" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="training.compute_kfold_validation_metrics.compute_kfold_validation_metrics">
+<span class="sig-prename descclassname"><span class="pre">training.compute_kfold_validation_metrics.</span></span><span class="sig-name descname"><span class="pre">compute_kfold_validation_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/compute_kfold_validation_metrics.html#compute_kfold_validation_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.compute_kfold_validation_metrics.compute_kfold_validation_metrics" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.compute_kfold_validation_metrics.main">
+<span class="sig-prename descclassname"><span class="pre">training.compute_kfold_validation_metrics.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/compute_kfold_validation_metrics.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.compute_kfold_validation_metrics.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-training.compute_stats_for_train">
+<span id="training-compute-stats-for-train-module"></span><h2>training.compute_stats_for_train module<a class="headerlink" href="#module-training.compute_stats_for_train" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="training.compute_stats_for_train.compute_stats">
+<span class="sig-prename descclassname"><span class="pre">training.compute_stats_for_train.</span></span><span class="sig-name descname"><span class="pre">compute_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/compute_stats_for_train.html#compute_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.compute_stats_for_train.compute_stats" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.compute_stats_for_train.main">
+<span class="sig-prename descclassname"><span class="pre">training.compute_stats_for_train.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/compute_stats_for_train.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.compute_stats_for_train.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-training.dataset">
+<span id="training-dataset-module"></span><h2>training.dataset module<a class="headerlink" href="#module-training.dataset" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="training.dataset.M4DSAROilSpillDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.dataset.</span></span><span class="sig-name descname"><span class="pre">M4DSAROilSpillDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_stats_json</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'image_stats.json'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/dataset.html#M4DSAROilSpillDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.dataset.M4DSAROilSpillDataset" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.dataset.get_dataloader_for_inference">
+<span class="sig-prename descclassname"><span class="pre">training.dataset.</span></span><span class="sig-name descname"><span class="pre">get_dataloader_for_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/dataset.html#get_dataloader_for_inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.dataset.get_dataloader_for_inference" title="Permalink to this definition"></a></dt>
+<dd><section id="arguments">
+<h3>Arguments<a class="headerlink" href="#arguments" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dir_dataset<span class="classifier">str</span></dt><dd><p>full path to dataset directory</p>
+</dd>
+<dt>batch_size<span class="classifier">int</span></dt><dd><p>batch size to be used (default: 1)</p>
+</dd>
+<dt>num_workers<span class="classifier">int</span></dt><dd><p>number of workers to be used for dataloader (default: 4)</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>(inference_dataset_loader, list_inference_images)<span class="classifier">tuple</span></dt><dd><p>tuple of torch dataloader and a list of inference images</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.dataset.get_dataloaders_for_training">
+<span class="sig-prename descclassname"><span class="pre">training.dataset.</span></span><span class="sig-name descname"><span class="pre">get_dataloaders_for_training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/dataset.html#get_dataloaders_for_training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.dataset.get_dataloaders_for_training" title="Permalink to this definition"></a></dt>
+<dd><section id="id1">
+<h3>Arguments<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dir_dataset<span class="classifier">str</span></dt><dd><p>full path to dataset directory</p>
+</dd>
+<dt>batch_size<span class="classifier">int</span></dt><dd><p>batch size to be used</p>
+</dd>
+<dt>random_state<span class="classifier">int</span></dt><dd><p>random state to be used for train / validation set split (default: None)</p>
+</dd>
+<dt>num_workers<span class="classifier">int</span></dt><dd><p>number of workers to be used for dataloader (default: 4)</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>Returns<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>(train_dataset_loader, valid_dataset_loader)<span class="classifier">tuple</span></dt><dd><p>tuple of torch dataloaders</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-training.decoder_models">
+<span id="training-decoder-models-module"></span><h2>training.decoder_models module<a class="headerlink" href="#module-training.decoder_models" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="training.decoder_models.ASPPBlock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.decoder_models.</span></span><span class="sig-name descname"><span class="pre">ASPPBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atrous_rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspp_out_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#ASPPBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.ASPPBlock" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.decoder_models.ASPPBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#ASPPBlock.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.ASPPBlock.forward" title="Permalink to this definition"></a></dt>
+<dd><section id="id3">
+<h3>Arguments<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>x<span class="classifier">torch tensor</span></dt><dd><p>a tensor of input features</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h3>Returns<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>x<span class="classifier">torch tensor</span></dt><dd><p>output of the ASPPBlock</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.decoder_models.ASPPBlock.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.decoder_models.ASPPBlock.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.decoder_models.ASPPConvLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.decoder_models.</span></span><span class="sig-name descname"><span class="pre">ASPPConvLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#ASPPConvLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.ASPPConvLayer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequential</span></code></p>
+<p>ASPPConvLayer class to build the ASPPConvLayer used in ASPPBlock</p>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>in_channels<span class="classifier">int</span></dt><dd><p>number of input channels to ASPPConvLayer</p>
+</dd>
+<dt>out_channels<span class="classifier">int</span></dt><dd><p>number of output channels from ASPPConvLayer</p>
+</dd>
+<dt>dilation<span class="classifier">int</span></dt><dd><p>dilation rate</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.decoder_models.ASPPConvLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#ASPPConvLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.ASPPConvLayer.forward" title="Permalink to this definition"></a></dt>
+<dd><section id="id5">
+<h4>Arguments<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>x<span class="classifier">torch tensor</span></dt><dd><p>a tensor of input features</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h4>Returns<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>x<span class="classifier">torch tensor</span></dt><dd><p>output of the ASPPConvLayer</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.decoder_models.ASPPPoolingLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.decoder_models.</span></span><span class="sig-name descname"><span class="pre">ASPPPoolingLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#ASPPPoolingLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.ASPPPoolingLayer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequential</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.decoder_models.ASPPPoolingLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#ASPPPoolingLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.ASPPPoolingLayer.forward" title="Permalink to this definition"></a></dt>
+<dd><section id="id7">
+<h3>Arguments<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>x<span class="classifier">torch tensor</span></dt><dd><p>a tensor of input features</p>
+</dd>
+</dl>
+</section>
+<section id="id8">
+<h3>Returns<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>x<span class="classifier">torch tensor</span></dt><dd><p>output of the ASPPPoolingLayer</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.decoder_models.DeepLabV3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.decoder_models.</span></span><span class="sig-name descname"><span class="pre">DeepLabV3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspp_out_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_out_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspp_dilate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[12,</span> <span class="pre">24,</span> <span class="pre">36]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#DeepLabV3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.DeepLabV3" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>DeepLabV3 class to build the DeepLabV3 decoder model</p>
+<section id="id9">
+<h3>Attributes<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>in_channels<span class="classifier">int</span></dt><dd><p>number of input channels to decoder model from the encoder model’s output</p>
+</dd>
+<dt>num_classes<span class="classifier">int</span></dt><dd><p>number of classes for which the decoder needs to be built</p>
+</dd>
+<dt>aspp_out_channels<span class="classifier">int</span></dt><dd><p>number of output channels of the ASPP layer (default: 256)</p>
+</dd>
+<dt>final_out_channels<span class="classifier">int</span></dt><dd><p>number of output channels before applying classification conv layer (default: 256)</p>
+</dd>
+<dt>aspp_dilate: list</dt><dd><p>a list of dilation rates to be used for conv layers in ASPP block (default: [12, 24, 36])</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.decoder_models.DeepLabV3.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#DeepLabV3.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.DeepLabV3.forward" title="Permalink to this definition"></a></dt>
+<dd><section id="id10">
+<h4>Arguments<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>encoded_features<span class="classifier">torch tensor</span></dt><dd><p>a tensor of encoded features from the encoder</p>
+</dd>
+</dl>
+</section>
+<section id="id11">
+<h4>Returns<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>final_output_feature<span class="classifier">torch tensor</span></dt><dd><p>a tensor of final output logits</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.decoder_models.DeepLabV3.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.decoder_models.DeepLabV3.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.decoder_models.DeepLabV3Plus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.decoder_models.</span></span><span class="sig-name descname"><span class="pre">DeepLabV3Plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_projection_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspp_out_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_out_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aspp_dilate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[12,</span> <span class="pre">24,</span> <span class="pre">36]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#DeepLabV3Plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.DeepLabV3Plus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>DeepLabV3Plus class to build the DeepLabV3+ decoder model</p>
+<section id="id12">
+<h3>Attributes<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>in_channels<span class="classifier">int</span></dt><dd><p>number of input channels to decoder model from the encoder model’s output</p>
+</dd>
+<dt>encoder_channels<span class="classifier">int</span></dt><dd><p>number of channels from the intermediate layer of the encoder for merging</p>
+</dd>
+<dt>num_classes<span class="classifier">int</span></dt><dd><p>number of classes for which the decoder needs to be built</p>
+</dd>
+<dt>encoder_projection_channels<span class="classifier">int</span></dt><dd><p>number of resulting projection channels from the intermediate layer of the encoder for merging (default: 48)</p>
+</dd>
+<dt>aspp_out_channels<span class="classifier">int</span></dt><dd><p>number of output channels of the ASPP layer (default: 256)</p>
+</dd>
+<dt>final_out_channels<span class="classifier">int</span></dt><dd><p>number of output channels before applying classification conv layer (default: 256)</p>
+</dd>
+<dt>aspp_dilate: list</dt><dd><p>a list of dilation rates to be used for conv layers in ASPP block (default: [12, 24, 36])</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.decoder_models.DeepLabV3Plus.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_1_features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/decoder_models.html#DeepLabV3Plus.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.decoder_models.DeepLabV3Plus.forward" title="Permalink to this definition"></a></dt>
+<dd><section id="id13">
+<h4>Arguments<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>encoded_features<span class="classifier">torch tensor</span></dt><dd><p>a tensor of encoded features from the encoder</p>
+</dd>
+<dt>block_1_features<span class="classifier">torch tensor</span></dt><dd><p>a tensor of features from the intermediate layer from the encoder</p>
+</dd>
+</dl>
+</section>
+<section id="id14">
+<h4>Returns<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>final_output_feature<span class="classifier">torch tensor</span></dt><dd><p>a tensor of final output logits</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.decoder_models.DeepLabV3Plus.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.decoder_models.DeepLabV3Plus.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+<section id="module-training.encoder_models">
+<span id="training-encoder-models-module"></span><h2>training.encoder_models module<a class="headerlink" href="#module-training.encoder_models" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="training.encoder_models.CustomEfficientNet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">CustomEfficientNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inverted_residual_setting</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">MBConvConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">FusedMBConvConfig</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stochastic_depth_prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Module</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#CustomEfficientNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.CustomEfficientNet" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.encoder_models.CustomEfficientNet.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#CustomEfficientNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.CustomEfficientNet.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.encoder_models.CustomEfficientNet.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.encoder_models.CustomEfficientNet.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.encoder_models.CustomResNet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">CustomResNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">layers:</span> <span class="pre">~typing.List[int],</span> <span class="pre">block=&lt;class</span> <span class="pre">'torchvision.models.resnet.BasicBlock'&gt;,</span> <span class="pre">zero_init_residual=False,</span> <span class="pre">groups=1,</span> <span class="pre">num_classes=1000,</span> <span class="pre">width_per_group=64,</span> <span class="pre">replace_stride_with_dilation=None,</span> <span class="pre">norm_layer=None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#CustomResNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.CustomResNet" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.encoder_models.CustomResNet.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#CustomResNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.CustomResNet.forward" title="Permalink to this definition"></a></dt>
+<dd><section id="id15">
+<h3>Arguments<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>x<span class="classifier">torch tensor</span></dt><dd><p>a tensor of input features</p>
+</dd>
+</dl>
+</section>
+<section id="id16">
+<h3>Returns<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>x<span class="classifier">torch tensor</span></dt><dd><p>output of the CustomResNet</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.encoder_models.CustomResNet.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.encoder_models.CustomResNet.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.encoder_models.efficientnet_v2_l">
+<span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">efficientnet_v2_l</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#efficientnet_v2_l"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.efficientnet_v2_l" title="Permalink to this definition"></a></dt>
+<dd><section id="id17">
+<h3>Arguments<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>pretrained<span class="classifier">bool</span></dt><dd><p>if True, returns a model pre-trained on ImageNet</p>
+</dd>
+<dt><a href="#id18"><span class="problematic" id="id19">**</span></a>kwargs :</dt><dd><p>additional arguments</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.encoder_models.efficientnet_v2_m">
+<span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">efficientnet_v2_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#efficientnet_v2_m"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.efficientnet_v2_m" title="Permalink to this definition"></a></dt>
+<dd><section id="id20">
+<h3>Arguments<a class="headerlink" href="#id20" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>pretrained<span class="classifier">bool</span></dt><dd><p>if True, returns a model pre-trained on ImageNet</p>
+</dd>
+<dt><a href="#id21"><span class="problematic" id="id22">**</span></a>kwargs :</dt><dd><p>additional arguments</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.encoder_models.efficientnet_v2_s">
+<span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">efficientnet_v2_s</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#efficientnet_v2_s"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.efficientnet_v2_s" title="Permalink to this definition"></a></dt>
+<dd><section id="id23">
+<h3>Arguments<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>pretrained<span class="classifier">bool</span></dt><dd><p>if True, returns a model pre-trained on ImageNet</p>
+</dd>
+<dt><a href="#id24"><span class="problematic" id="id25">**</span></a>kwargs :</dt><dd><p>additional arguments</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.encoder_models.resnet101">
+<span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">resnet101</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#resnet101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.resnet101" title="Permalink to this definition"></a></dt>
+<dd><p>ResNet-101 model from
+<a class="reference external" href="https://arxiv.org/pdf/1512.03385.pdf">“Deep Residual Learning for Image Recognition”</a></p>
+<section id="id26">
+<h3>Arguments<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>pretrained<span class="classifier">bool</span></dt><dd><p>if True, returns a model pre-trained on ImageNet</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.encoder_models.resnet18">
+<span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">resnet18</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#resnet18"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.resnet18" title="Permalink to this definition"></a></dt>
+<dd><p>ResNet-18 model from
+<a class="reference external" href="https://arxiv.org/pdf/1512.03385.pdf">“Deep Residual Learning for Image Recognition”</a></p>
+<section id="id28">
+<h3>Arguments<a class="headerlink" href="#id28" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>pretrained<span class="classifier">bool</span></dt><dd><p>if True, returns a model pre-trained on ImageNet</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.encoder_models.resnet34">
+<span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">resnet34</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#resnet34"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.resnet34" title="Permalink to this definition"></a></dt>
+<dd><p>ResNet-34 model from
+<a class="reference external" href="https://arxiv.org/pdf/1512.03385.pdf">“Deep Residual Learning for Image Recognition”</a></p>
+<section id="id30">
+<h3>Arguments<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>pretrained<span class="classifier">bool</span></dt><dd><p>if True, returns a model pre-trained on ImageNet</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.encoder_models.resnet50">
+<span class="sig-prename descclassname"><span class="pre">training.encoder_models.</span></span><span class="sig-name descname"><span class="pre">resnet50</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/encoder_models.html#resnet50"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.encoder_models.resnet50" title="Permalink to this definition"></a></dt>
+<dd><p>ResNet-50 model from
+<a class="reference external" href="https://arxiv.org/pdf/1512.03385.pdf">“Deep Residual Learning for Image Recognition”</a></p>
+<section id="id32">
+<h3>Arguments<a class="headerlink" href="#id32" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>pretrained<span class="classifier">bool</span></dt><dd><p>if True, returns a model pre-trained on ImageNet</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-training.exploratory_data_analysis">
+<span id="training-exploratory-data-analysis-module"></span><h2>training.exploratory_data_analysis module<a class="headerlink" href="#module-training.exploratory_data_analysis" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="training.exploratory_data_analysis.do_exploratory_data_analysis">
+<span class="sig-prename descclassname"><span class="pre">training.exploratory_data_analysis.</span></span><span class="sig-name descname"><span class="pre">do_exploratory_data_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/exploratory_data_analysis.html#do_exploratory_data_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.exploratory_data_analysis.do_exploratory_data_analysis" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.exploratory_data_analysis.main">
+<span class="sig-prename descclassname"><span class="pre">training.exploratory_data_analysis.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/exploratory_data_analysis.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.exploratory_data_analysis.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-training.image_preprocessing">
+<span id="training-image-preprocessing-module"></span><h2>training.image_preprocessing module<a class="headerlink" href="#module-training.image_preprocessing" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="training.image_preprocessing.ImagePadder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.image_preprocessing.</span></span><span class="sig-name descname"><span class="pre">ImagePadder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_left</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_right</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_bottom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_anchor_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'img_0814.jpg'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/image_preprocessing.html#ImagePadder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.image_preprocessing.ImagePadder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.image_preprocessing.ImagePadder.pad_image">
+<span class="sig-name descname"><span class="pre">pad_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/image_preprocessing.html#ImagePadder.pad_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.image_preprocessing.ImagePadder.pad_image" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="training.image_preprocessing.ImagePadder.pad_label">
+<span class="sig-name descname"><span class="pre">pad_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/image_preprocessing.html#ImagePadder.pad_label"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.image_preprocessing.ImagePadder.pad_label" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-training.inference">
+<span id="training-inference-module"></span><h2>training.inference module<a class="headerlink" href="#module-training.inference" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="training.inference.create_directory">
+<span class="sig-prename descclassname"><span class="pre">training.inference.</span></span><span class="sig-name descname"><span class="pre">create_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/inference.html#create_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.inference.create_directory" title="Permalink to this definition"></a></dt>
+<dd><section id="id33">
+<h3>Arguments<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dir_path<span class="classifier">str</span></dt><dd><p>full directory path that needs to be created if it does not exist</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.inference.inference_loop">
+<span class="sig-prename descclassname"><span class="pre">training.inference.</span></span><span class="sig-name descname"><span class="pre">inference_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_masks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.png'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/inference.html#inference_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.inference.inference_loop" title="Permalink to this definition"></a></dt>
+<dd><section id="id34">
+<h3>Arguments<a class="headerlink" href="#id34" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dataset_loader<span class="classifier">object</span></dt><dd><p>object of type dataloader</p>
+</dd>
+<dt>list_images<span class="classifier">list</span></dt><dd><p>list of images for which the inference needs to be run</p>
+</dd>
+<dt>model<span class="classifier">object</span></dt><dd><p>object of type model</p>
+</dd>
+<dt>dir_labels<span class="classifier">str</span></dt><dd><p>full directory path to save prediction labels</p>
+</dd>
+<dt>dir_masks<span class="classifier">str</span></dt><dd><p>full directory path to save prediction masks</p>
+</dd>
+<dt>num_classes<span class="classifier">int</span></dt><dd><p>number of classes in the dataset</p>
+</dd>
+<dt>device<span class="classifier">str</span></dt><dd><p>device on which inference needs to be run</p>
+</dd>
+<dt>image_format<span class="classifier">str</span></dt><dd><p>the extension format of the images (default: “.png”)</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.inference.main">
+<span class="sig-prename descclassname"><span class="pre">training.inference.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/inference.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.inference.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.inference.run_inference">
+<span class="sig-prename descclassname"><span class="pre">training.inference.</span></span><span class="sig-name descname"><span class="pre">run_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/inference.html#run_inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.inference.run_inference" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-training.logger_utils">
+<span id="training-logger-utils-module"></span><h2>training.logger_utils module<a class="headerlink" href="#module-training.logger_utils" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="training.logger_utils.CSVWriter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.logger_utils.</span></span><span class="sig-name descname"><span class="pre">CSVWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/logger_utils.html#CSVWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.logger_utils.CSVWriter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>CSVWriter class for writing tabular data to a csv file</p>
+<section id="id35">
+<h3>Attributes<a class="headerlink" href="#id35" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>file_name<span class="classifier">str</span></dt><dd><p>file name of the csv file</p>
+</dd>
+<dt>column_names<span class="classifier">list</span></dt><dd><p>a list of column names</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.logger_utils.CSVWriter.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/logger_utils.html#CSVWriter.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.logger_utils.CSVWriter.close" title="Permalink to this definition"></a></dt>
+<dd><p>close the file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="training.logger_utils.CSVWriter.write_header">
+<span class="sig-name descname"><span class="pre">write_header</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/logger_utils.html#CSVWriter.write_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.logger_utils.CSVWriter.write_header" title="Permalink to this definition"></a></dt>
+<dd><p>writes header into csv file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="training.logger_utils.CSVWriter.write_row">
+<span class="sig-name descname"><span class="pre">write_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/logger_utils.html#CSVWriter.write_row"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.logger_utils.CSVWriter.write_row" title="Permalink to this definition"></a></dt>
+<dd><p>writes a row into csv file</p>
+<section id="id36">
+<h4>Arguments<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h4>
+<dl class="simple">
+<dt>row<span class="classifier">list</span></dt><dd><p>a list of row values</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.logger_utils.load_dict_from_json">
+<span class="sig-prename descclassname"><span class="pre">training.logger_utils.</span></span><span class="sig-name descname"><span class="pre">load_dict_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/logger_utils.html#load_dict_from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.logger_utils.load_dict_from_json" title="Permalink to this definition"></a></dt>
+<dd><section id="id37">
+<h3>Arguments<a class="headerlink" href="#id37" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>file_json<span class="classifier">str</span></dt><dd><p>full path of json file to be saved</p>
+</dd>
+</dl>
+</section>
+<section id="id38">
+<h3>Returns<a class="headerlink" href="#id38" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dict_data<span class="classifier">dict</span></dt><dd><p>dictionary of params loaded from the json file</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.logger_utils.write_dict_to_json">
+<span class="sig-prename descclassname"><span class="pre">training.logger_utils.</span></span><span class="sig-name descname"><span class="pre">write_dict_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_json</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/logger_utils.html#write_dict_to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.logger_utils.write_dict_to_json" title="Permalink to this definition"></a></dt>
+<dd><section id="id39">
+<h3>Arguments<a class="headerlink" href="#id39" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>file_json<span class="classifier">str</span></dt><dd><p>full path of json file to be saved</p>
+</dd>
+<dt>dict_data<span class="classifier">dict</span></dt><dd><p>dictionary of params to be saved in the json file</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-training.metrics">
+<span id="training-metrics-module"></span><h2>training.metrics module<a class="headerlink" href="#module-training.metrics" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="training.metrics.compute_class_IOU">
+<span class="sig-prename descclassname"><span class="pre">training.metrics.</span></span><span class="sig-name descname"><span class="pre">compute_class_IOU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/metrics.html#compute_class_IOU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.metrics.compute_class_IOU" title="Permalink to this definition"></a></dt>
+<dd><section id="id40">
+<h3>Arguments<a class="headerlink" href="#id40" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>true_label<span class="classifier">ndarray</span></dt><dd><p>a numpy array of groundtruth label</p>
+</dd>
+<dt>pred_label<span class="classifier">ndarray</span></dt><dd><p>a numpy array of prediction label</p>
+</dd>
+<dt>num_classes<span class="classifier">int</span></dt><dd><p>number of classes in the dataset (default: 5)</p>
+</dd>
+</dl>
+</section>
+<section id="id41">
+<h3>Returns<a class="headerlink" href="#id41" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>per_class_iou<span class="classifier">ndarray</span></dt><dd><p>a numpy array of per class IoU</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.metrics.compute_mean_IOU">
+<span class="sig-prename descclassname"><span class="pre">training.metrics.</span></span><span class="sig-name descname"><span class="pre">compute_mean_IOU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/metrics.html#compute_mean_IOU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.metrics.compute_mean_IOU" title="Permalink to this definition"></a></dt>
+<dd><section id="id42">
+<h3>Arguments<a class="headerlink" href="#id42" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>true_label<span class="classifier">ndarray</span></dt><dd><p>a numpy array of groundtruth label</p>
+</dd>
+<dt>pred_label<span class="classifier">ndarray</span></dt><dd><p>a numpy array of prediction label</p>
+</dd>
+<dt>num_classes<span class="classifier">int</span></dt><dd><p>number of classes in the dataset (default: 5)</p>
+</dd>
+</dl>
+</section>
+<section id="id43">
+<h3>Returns<a class="headerlink" href="#id43" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mean_iou<span class="classifier">float</span></dt><dd><p>mean IoU</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.metrics.compute_mean_pixel_acc">
+<span class="sig-prename descclassname"><span class="pre">training.metrics.</span></span><span class="sig-name descname"><span class="pre">compute_mean_pixel_acc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">true_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/metrics.html#compute_mean_pixel_acc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.metrics.compute_mean_pixel_acc" title="Permalink to this definition"></a></dt>
+<dd><section id="id44">
+<h3>Arguments<a class="headerlink" href="#id44" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>true_label<span class="classifier">ndarray</span></dt><dd><p>a numpy array of groundtruth label</p>
+</dd>
+<dt>pred_label<span class="classifier">ndarray</span></dt><dd><p>a numpy array of prediction label</p>
+</dd>
+</dl>
+</section>
+<section id="id45">
+<h3>Returns<a class="headerlink" href="#id45" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mean_pixel_accuracy<span class="classifier">float</span></dt><dd><p>mean pixel accuracy</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-training.seg_models">
+<span id="training-seg-models-module"></span><h2>training.seg_models module<a class="headerlink" href="#module-training.seg_models" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetLDeepLabV3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.seg_models.</span></span><span class="sig-name descname"><span class="pre">EfficientNetLDeepLabV3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#EfficientNetLDeepLabV3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.EfficientNetLDeepLabV3" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetLDeepLabV3.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#EfficientNetLDeepLabV3.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.EfficientNetLDeepLabV3.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetLDeepLabV3.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.seg_models.EfficientNetLDeepLabV3.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetMDeepLabV3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.seg_models.</span></span><span class="sig-name descname"><span class="pre">EfficientNetMDeepLabV3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#EfficientNetMDeepLabV3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.EfficientNetMDeepLabV3" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetMDeepLabV3.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#EfficientNetMDeepLabV3.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.EfficientNetMDeepLabV3.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetMDeepLabV3.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.seg_models.EfficientNetMDeepLabV3.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetSDeepLabV3">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.seg_models.</span></span><span class="sig-name descname"><span class="pre">EfficientNetSDeepLabV3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#EfficientNetSDeepLabV3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.EfficientNetSDeepLabV3" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetSDeepLabV3.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#EfficientNetSDeepLabV3.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.EfficientNetSDeepLabV3.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.seg_models.EfficientNetSDeepLabV3.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.seg_models.EfficientNetSDeepLabV3.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.seg_models.ResNet101DeepLabV3Plus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.seg_models.</span></span><span class="sig-name descname"><span class="pre">ResNet101DeepLabV3Plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#ResNet101DeepLabV3Plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.ResNet101DeepLabV3Plus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.seg_models.ResNet101DeepLabV3Plus.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#ResNet101DeepLabV3Plus.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.ResNet101DeepLabV3Plus.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.seg_models.ResNet101DeepLabV3Plus.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.seg_models.ResNet101DeepLabV3Plus.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.seg_models.ResNet18DeepLabV3Plus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.seg_models.</span></span><span class="sig-name descname"><span class="pre">ResNet18DeepLabV3Plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#ResNet18DeepLabV3Plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.ResNet18DeepLabV3Plus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.seg_models.ResNet18DeepLabV3Plus.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#ResNet18DeepLabV3Plus.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.ResNet18DeepLabV3Plus.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.seg_models.ResNet18DeepLabV3Plus.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.seg_models.ResNet18DeepLabV3Plus.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.seg_models.ResNet34DeepLabV3Plus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.seg_models.</span></span><span class="sig-name descname"><span class="pre">ResNet34DeepLabV3Plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#ResNet34DeepLabV3Plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.ResNet34DeepLabV3Plus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.seg_models.ResNet34DeepLabV3Plus.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#ResNet34DeepLabV3Plus.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.ResNet34DeepLabV3Plus.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.seg_models.ResNet34DeepLabV3Plus.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.seg_models.ResNet34DeepLabV3Plus.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="training.seg_models.ResNet50DeepLabV3Plus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.seg_models.</span></span><span class="sig-name descname"><span class="pre">ResNet50DeepLabV3Plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#ResNet50DeepLabV3Plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.ResNet50DeepLabV3Plus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.seg_models.ResNet50DeepLabV3Plus.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/seg_models.html#ResNet50DeepLabV3Plus.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.seg_models.ResNet50DeepLabV3Plus.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="training.seg_models.ResNet50DeepLabV3Plus.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#training.seg_models.ResNet50DeepLabV3Plus.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-training.summarize_model">
+<span id="training-summarize-model-module"></span><h2>training.summarize_model module<a class="headerlink" href="#module-training.summarize_model" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="training.summarize_model.main">
+<span class="sig-prename descclassname"><span class="pre">training.summarize_model.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/summarize_model.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.summarize_model.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.summarize_model.summarize_model">
+<span class="sig-prename descclassname"><span class="pre">training.summarize_model.</span></span><span class="sig-name descname"><span class="pre">summarize_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/summarize_model.html#summarize_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.summarize_model.summarize_model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-training.train">
+<span id="training-train-module"></span><h2>training.train module<a class="headerlink" href="#module-training.train" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="training.train.PolynomialLR">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">training.train.</span></span><span class="sig-name descname"><span class="pre">PolynomialLR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/train.html#PolynomialLR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.train.PolynomialLR" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_LRScheduler</span></code></p>
+<p>PolynomialLR class for the polynomial learning rate scheduler</p>
+<section id="id46">
+<h3>Attributes<a class="headerlink" href="#id46" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>optimizer<span class="classifier">object</span></dt><dd><p>object of type optimizer</p>
+</dd>
+<dt>max_epochs<span class="classifier">int</span></dt><dd><p>maximum number of epochs for which optimization needs to be run</p>
+</dd>
+<dt>power<span class="classifier">float</span></dt><dd><p>the power term in the polynomial learning rate scheduler (default: 0.9)</p>
+</dd>
+<dt>last_epoch<span class="classifier">int</span></dt><dd><p>last epoch in the optimization (default: -1)</p>
+</dd>
+<dt>min_lr<span class="classifier">float</span></dt><dd><p>minimum value for the learning rate (default: 1e-6)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="training.train.PolynomialLR.get_lr">
+<span class="sig-name descname"><span class="pre">get_lr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/train.html#PolynomialLR.get_lr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.train.PolynomialLR.get_lr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.train.batch_train">
+<span class="sig-prename descclassname"><span class="pre">training.train.</span></span><span class="sig-name descname"><span class="pre">batch_train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FLAGS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/train.html#batch_train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.train.batch_train" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.train.main">
+<span class="sig-prename descclassname"><span class="pre">training.train.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/train.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.train.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.train.train_loop">
+<span class="sig-prename descclassname"><span class="pre">training.train.</span></span><span class="sig-name descname"><span class="pre">train_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ce_loss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/train.html#train_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.train.train_loop" title="Permalink to this definition"></a></dt>
+<dd><section id="id47">
+<h3>Arguments<a class="headerlink" href="#id47" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dataset_loader<span class="classifier">object</span></dt><dd><p>object of type dataloader</p>
+</dd>
+<dt>model<span class="classifier">object</span></dt><dd><p>object of type model</p>
+</dd>
+<dt>ce_loss<span class="classifier">object</span></dt><dd><p>object of type cross entropy loss</p>
+</dd>
+<dt>optimizer<span class="classifier">object</span></dt><dd><p>object of type optimizer</p>
+</dd>
+<dt>device<span class="classifier">str</span></dt><dd><p>device on which training needs to be run</p>
+</dd>
+</dl>
+</section>
+<section id="id48">
+<h3>Returns<a class="headerlink" href="#id48" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>train_loss<span class="classifier">torch float</span></dt><dd><p>mean loss for the training set</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="training.train.validation_loop">
+<span class="sig-prename descclassname"><span class="pre">training.train.</span></span><span class="sig-name descname"><span class="pre">validation_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_loader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ce_loss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/training/train.html#validation_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#training.train.validation_loop" title="Permalink to this definition"></a></dt>
+<dd><section id="id49">
+<h3>Arguments<a class="headerlink" href="#id49" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dataset_loader<span class="classifier">object</span></dt><dd><p>object of type dataloader</p>
+</dd>
+<dt>model<span class="classifier">object</span></dt><dd><p>object of type model</p>
+</dd>
+<dt>ce_loss<span class="classifier">object</span></dt><dd><p>object of type cross entropy loss</p>
+</dd>
+<dt>device<span class="classifier">str</span></dt><dd><p>device on which training needs to be run</p>
+</dd>
+</dl>
+</section>
+<section id="id50">
+<h3>Returns<a class="headerlink" href="#id50" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>(valid_loss, valid_acc, valid_IOU)<span class="classifier">tuple</span></dt><dd><p>a tuples of torch floats of mean loss, mean accuracy, mean IoU for the validation set</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-training">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-training" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="app.html" class="btn btn-neutral float-left" title="app module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, AbhishekRS4.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>training.train &mdash; Oil Spill Segmentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Oil Spill Segmentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Oil Spill Segmentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">training.train</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for training.train</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+
+<span class="kn">from</span> <span class="nn">metrics</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">seg_models</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">dataset</span> <span class="kn">import</span> <span class="n">get_dataloaders_for_training</span>
+<span class="kn">from</span> <span class="nn">logger_utils</span> <span class="kn">import</span> <span class="n">CSVWriter</span><span class="p">,</span> <span class="n">write_dict_to_json</span>
+
+<span class="kn">from</span> <span class="nn">torch.optim.lr_scheduler</span> <span class="kn">import</span> <span class="n">_LRScheduler</span>
+
+<div class="viewcode-block" id="PolynomialLR"><a class="viewcode-back" href="../../training.html#training.train.PolynomialLR">[docs]</a><span class="k">class</span> <span class="nc">PolynomialLR</span><span class="p">(</span><span class="n">_LRScheduler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PolynomialLR class for the polynomial learning rate scheduler</span>
+
+<span class="sd">    ----------</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    optimizer : object</span>
+<span class="sd">        object of type optimizer</span>
+<span class="sd">    max_epochs : int</span>
+<span class="sd">        maximum number of epochs for which optimization needs to be run</span>
+<span class="sd">    power : float</span>
+<span class="sd">        the power term in the polynomial learning rate scheduler (default: 0.9)</span>
+<span class="sd">    last_epoch : int</span>
+<span class="sd">        last epoch in the optimization (default: -1)</span>
+<span class="sd">    min_lr : float</span>
+<span class="sd">        minimum value for the learning rate (default: 1e-6)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">max_epochs</span><span class="p">,</span> <span class="n">power</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">last_epoch</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_lr</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">power</span> <span class="o">=</span> <span class="n">power</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_epochs</span> <span class="o">=</span> <span class="n">max_epochs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_lr</span> <span class="o">=</span> <span class="n">min_lr</span> <span class="c1"># avoid zero lr</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PolynomialLR</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">last_epoch</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PolynomialLR.get_lr"><a class="viewcode-back" href="../../training.html#training.train.PolynomialLR.get_lr">[docs]</a>    <span class="k">def</span> <span class="nf">get_lr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span> <span class="nb">max</span><span class="p">(</span> <span class="n">base_lr</span> <span class="o">*</span> <span class="p">(</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_epoch</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">max_epochs</span> <span class="p">)</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">power</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_lr</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">base_lr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_lrs</span><span class="p">]</span></div></div>
+
+<div class="viewcode-block" id="validation_loop"><a class="viewcode-back" href="../../training.html#training.train.validation_loop">[docs]</a><span class="k">def</span> <span class="nf">validation_loop</span><span class="p">(</span><span class="n">dataset_loader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">ce_loss</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    dataset_loader : object</span>
+<span class="sd">        object of type dataloader</span>
+<span class="sd">    model : object</span>
+<span class="sd">        object of type model</span>
+<span class="sd">    ce_loss : object</span>
+<span class="sd">        object of type cross entropy loss</span>
+<span class="sd">    device : str</span>
+<span class="sd">        device on which training needs to be run</span>
+
+<span class="sd">    -------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    (valid_loss, valid_acc, valid_IOU) : tuple</span>
+<span class="sd">        a tuples of torch floats of mean loss, mean accuracy, mean IoU for the validation set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_loader</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_loader</span><span class="p">)</span>
+    <span class="n">valid_loss</span><span class="p">,</span> <span class="n">valid_acc</span><span class="p">,</span> <span class="n">valid_IOU</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">dataset_loader</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
+
+            <span class="n">pred_logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">valid_loss</span> <span class="o">+=</span> <span class="n">ce_loss</span><span class="p">(</span><span class="n">pred_logits</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+
+            <span class="n">pred_probs</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">pred_logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">pred_label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">pred_probs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">valid_acc</span> <span class="o">+=</span> <span class="n">compute_mean_pixel_acc</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">pred_label</span><span class="p">)</span>
+            <span class="n">valid_IOU</span> <span class="o">+=</span> <span class="n">compute_mean_IOU</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">pred_label</span><span class="p">)</span>
+
+    <span class="n">valid_loss</span> <span class="o">/=</span> <span class="n">num_batches</span>
+    <span class="n">valid_acc</span> <span class="o">/=</span> <span class="n">num_batches</span>
+    <span class="n">valid_IOU</span> <span class="o">/=</span> <span class="n">num_batches</span>
+    <span class="k">return</span> <span class="n">valid_loss</span><span class="p">,</span> <span class="n">valid_acc</span><span class="p">,</span> <span class="n">valid_IOU</span></div>
+
+<div class="viewcode-block" id="train_loop"><a class="viewcode-back" href="../../training.html#training.train.train_loop">[docs]</a><span class="k">def</span> <span class="nf">train_loop</span><span class="p">(</span><span class="n">dataset_loader</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">ce_loss</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    dataset_loader : object</span>
+<span class="sd">        object of type dataloader</span>
+<span class="sd">    model : object</span>
+<span class="sd">        object of type model</span>
+<span class="sd">    ce_loss : object</span>
+<span class="sd">        object of type cross entropy loss</span>
+<span class="sd">    optimizer : object</span>
+<span class="sd">        object of type optimizer</span>
+<span class="sd">    device : str</span>
+<span class="sd">        device on which training needs to be run</span>
+
+<span class="sd">    -------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    train_loss : torch float</span>
+<span class="sd">        mean loss for the training set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_loader</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_loader</span><span class="p">)</span>
+    <span class="n">train_loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">dataset_loader</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+        <span class="n">pred_logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">ce_loss</span><span class="p">(</span><span class="n">pred_logits</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+
+        <span class="c1"># Backpropagation</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="n">train_loss</span> <span class="o">+=</span> <span class="n">loss</span>
+    <span class="n">train_loss</span> <span class="o">/=</span> <span class="n">num_batches</span>
+    <span class="k">return</span> <span class="n">train_loss</span></div>
+
+<div class="viewcode-block" id="batch_train"><a class="viewcode-back" href="../../training.html#training.train.batch_train">[docs]</a><span class="k">def</span> <span class="nf">batch_train</span><span class="p">(</span><span class="n">FLAGS</span><span class="p">):</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">dir_model</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;created directory : </span><span class="si">{</span><span class="n">dir_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">CSVWriter</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="s2">&quot;train_metrics.csv&quot;</span><span class="p">),</span>
+        <span class="n">column_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">,</span> <span class="s2">&quot;train_loss&quot;</span><span class="p">,</span> <span class="s2">&quot;valid_loss&quot;</span><span class="p">,</span> <span class="s2">&quot;valid_acc&quot;</span><span class="p">,</span> <span class="s2">&quot;valid_IOU&quot;</span><span class="p">])</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;CUDA_LAUNCH_BLOCKING&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
+    <span class="n">train_dataset_loader</span><span class="p">,</span> <span class="n">valid_dataset_loader</span> <span class="o">=</span> <span class="n">get_dataloaders_for_training</span><span class="p">(</span>
+        <span class="n">FLAGS</span><span class="o">.</span><span class="n">dir_dataset</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span> <span class="o">==</span> <span class="s2">&quot;resnet_18_deeplab_v3+&quot;</span><span class="p">:</span>
+        <span class="n">oil_spill_seg_model</span> <span class="o">=</span> <span class="n">ResNet18DeepLabV3Plus</span><span class="p">(</span>
+            <span class="n">num_classes</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">pretrained</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span> <span class="o">==</span> <span class="s2">&quot;resnet_34_deeplab_v3+&quot;</span><span class="p">:</span>
+        <span class="n">oil_spill_seg_model</span> <span class="o">=</span> <span class="n">ResNet34DeepLabV3Plus</span><span class="p">(</span>
+            <span class="n">num_classes</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">pretrained</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span> <span class="o">==</span> <span class="s2">&quot;resnet_50_deeplab_v3+&quot;</span><span class="p">:</span>
+        <span class="n">oil_spill_seg_model</span> <span class="o">=</span> <span class="n">ResNet50DeepLabV3Plus</span><span class="p">(</span>
+            <span class="n">num_classes</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">pretrained</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span> <span class="o">==</span> <span class="s2">&quot;resnet_101_deeplab_v3+&quot;</span><span class="p">:</span>
+        <span class="n">oil_spill_seg_model</span> <span class="o">=</span> <span class="n">ResNet101DeepLabV3Plus</span><span class="p">(</span>
+            <span class="n">num_classes</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">pretrained</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span> <span class="o">==</span> <span class="s2">&quot;efficientnet_v2_s_deeplab_v3&quot;</span><span class="p">:</span>
+        <span class="n">oil_spill_seg_model</span> <span class="o">=</span> <span class="n">EfficientNetSDeepLabV3</span><span class="p">(</span>
+            <span class="n">num_classes</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">pretrained</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span> <span class="o">==</span> <span class="s2">&quot;efficientnet_v2_m_deeplab_v3&quot;</span><span class="p">:</span>
+        <span class="n">oil_spill_seg_model</span> <span class="o">=</span> <span class="n">EfficientNetMDeepLabV3</span><span class="p">(</span>
+            <span class="n">num_classes</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">pretrained</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span> <span class="o">==</span> <span class="s2">&quot;efficientnet_v2_l_deeplab_v3&quot;</span><span class="p">:</span>
+        <span class="n">oil_spill_seg_model</span> <span class="o">=</span> <span class="n">EfficientNetLDeepLabV3</span><span class="p">(</span>
+            <span class="n">num_classes</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">pretrained</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">pretrained</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;model not yet implemented, so exiting&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">oil_spill_seg_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_optimizer</span> <span class="o">==</span> <span class="s2">&quot;sgd&quot;</span><span class="p">:</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span>
+            <span class="n">oil_spill_seg_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span>
+            <span class="n">lr</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">,</span>
+            <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+            <span class="n">weight_decay</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">weight_decay</span>
+        <span class="p">)</span>
+        <span class="n">lr_scheduler</span> <span class="o">=</span> <span class="n">PolynomialLR</span><span class="p">(</span>
+            <span class="n">optimizer</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">num_epochs</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">power</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_optimizer</span> <span class="o">==</span> <span class="s2">&quot;adamw&quot;</span><span class="p">:</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span>
+            <span class="n">oil_spill_seg_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span>
+            <span class="n">lr</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">,</span>
+            <span class="n">weight_decay</span><span class="o">=</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">weight_decay</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">ce_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">training oil spill segmentation model: </span><span class="si">{</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">write_dict_to_json</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="s2">&quot;params.json&quot;</span><span class="p">),</span> <span class="nb">vars</span><span class="p">(</span><span class="n">FLAGS</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">num_epochs</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">t_1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">train_loss</span> <span class="o">=</span> <span class="n">train_loop</span><span class="p">(</span>
+            <span class="n">train_dataset_loader</span><span class="p">,</span> <span class="n">oil_spill_seg_model</span><span class="p">,</span> <span class="n">ce_loss</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">device</span>
+        <span class="p">)</span>
+        <span class="n">t_2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Epoch : </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">num_epochs</span><span class="si">}</span><span class="s2">, time: </span><span class="si">{</span><span class="p">(</span><span class="n">t_2</span><span class="o">-</span><span class="n">t_1</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> sec., train loss: </span><span class="si">{</span><span class="n">train_loss</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">valid_loss</span><span class="p">,</span> <span class="n">valid_acc</span><span class="p">,</span> <span class="n">valid_IOU</span> <span class="o">=</span> <span class="n">validation_loop</span><span class="p">(</span>
+            <span class="n">valid_dataset_loader</span><span class="p">,</span> <span class="n">oil_spill_seg_model</span><span class="p">,</span> <span class="n">ce_loss</span><span class="p">,</span> <span class="n">device</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;validation loss: </span><span class="si">{</span><span class="n">valid_loss</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">, validation accuracy: </span><span class="si">{</span><span class="n">valid_acc</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">, validation IOU: </span><span class="si">{</span><span class="n">valid_IOU</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">csv_writer</span><span class="o">.</span><span class="n">write_row</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">epoch</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">train_loss</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">valid_loss</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="nb">round</span><span class="p">(</span><span class="n">valid_acc</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="nb">round</span><span class="p">(</span><span class="n">valid_IOU</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">oil_spill_seg_model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;oil_spill_seg_</span><span class="si">{</span><span class="n">FLAGS</span><span class="o">.</span><span class="n">which_model</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">.pt&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">FLAGS</span><span class="o">.</span><span class="n">which_optimizer</span> <span class="o">==</span> <span class="s2">&quot;sgd&quot;</span><span class="p">:</span>
+            <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training complete!!!!&quot;</span><span class="p">)</span>
+    <span class="n">csv_writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../training.html#training.train.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">dir_dataset</span> <span class="o">=</span> <span class="s2">&quot;/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/&quot;</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">1e-2</span>
+    <span class="n">weight_decay</span> <span class="o">=</span> <span class="mf">1e-4</span>
+    <span class="n">which_optimizer</span> <span class="o">=</span> <span class="s2">&quot;sgd&quot;</span>
+    <span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">num_classes</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">which_model</span> <span class="o">=</span> <span class="s2">&quot;resnet_18_deeplab_v3+&quot;</span>
+    <span class="n">dir_model</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">list_model_choices</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;resnet_18_deeplab_v3+&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resnet_34_deeplab_v3+&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resnet_50_deeplab_v3+&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resnet_101_deeplab_v3+&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;efficientnet_v2_s_deeplab_v3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;efficientnet_v2_m_deeplab_v3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;efficientnet_v2_l_deeplab_v3&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dir_dataset&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">dir_dataset</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;full directory path to the dataset&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--pretrained&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;use pretrained encoder (1:True, 0:False)&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--random_state&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;random state to be used to split dataset into train and validation sets&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--which_optimizer&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">which_optimizer</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sgd&quot;</span><span class="p">,</span> <span class="s2">&quot;adamw&quot;</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;optimizer to be used for learning&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--learning_rate&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;learning rate (1e-4 for AdamW and 1e-2 for SGD)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--weight_decay&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">weight_decay</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;weight decay&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--num_epochs&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of epochs to train&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--batch_size&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of samples in a batch&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--num_classes&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">num_classes</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of semantic classes in the dataset&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--which_model&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">which_model</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">list_model_choices</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;which model to train&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dir_model&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">dir_model</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;base directory where to save the directory with trained checkpoint model files&quot;</span><span class="p">)</span>
+
+    <span class="n">FLAGS</span><span class="p">,</span> <span class="n">unparsed</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+    <span class="n">batch_train</span><span class="p">(</span><span class="n">FLAGS</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, AbhishekRS4.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

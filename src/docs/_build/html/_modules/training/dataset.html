@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>training.dataset &mdash; Oil Spill Segmentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=b3ba4146"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Oil Spill Segmentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Oil Spill Segmentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">training.dataset</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for training.dataset</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">skimage.io</span> <span class="kn">import</span> <span class="n">imread</span>
+<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">transforms</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="kn">from</span> <span class="nn">image_preprocessing</span> <span class="kn">import</span> <span class="n">ImagePadder</span>
+<span class="kn">from</span> <span class="nn">logger_utils</span> <span class="kn">import</span> <span class="n">load_dict_from_json</span>
+
+<div class="viewcode-block" id="M4DSAROilSpillDataset"><a class="viewcode-back" href="../../training.html#training.dataset.M4DSAROilSpillDataset">[docs]</a><span class="k">class</span> <span class="nc">M4DSAROilSpillDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dir_data</span><span class="p">,</span> <span class="n">list_images</span><span class="p">,</span> <span class="n">which_set</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="n">file_stats_json</span><span class="o">=</span><span class="s2">&quot;image_stats.json&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        M4DSAROilSpillDataset class to load satellite image dataset</span>
+
+<span class="sd">        ----------</span>
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dir_data : str</span>
+<span class="sd">            valid full directory path of the dataset</span>
+<span class="sd">        list_images : list</span>
+<span class="sd">            list of images in the directory</span>
+<span class="sd">        which_set : str</span>
+<span class="sd">            string indicates which set to be loaded (options = [&quot;train&quot;, &quot;test&quot;])</span>
+<span class="sd">        file_stats_json : str</span>
+<span class="sd">            json file with image stats</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dir_data</span> <span class="o">=</span> <span class="n">dir_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">which_set</span> <span class="o">=</span> <span class="n">which_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_stats_json</span> <span class="o">=</span> <span class="n">file_stats_json</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dict_stats</span> <span class="o">=</span> <span class="n">load_dict_from_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_stats_json</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">dir_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dict_stats</span> <span class="o">=</span> <span class="n">load_dict_from_json</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_json</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_stats_json</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dir_images</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir_data</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dir_labels</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir_data</span><span class="p">,</span> <span class="s2">&quot;labels_1D&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list_images</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">list_images</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_list_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_images</span><span class="p">]</span>
+
+        <span class="n">dir_pad_image</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dir_images</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image_padder</span> <span class="o">=</span> <span class="n">ImagePadder</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">dir_pad_image</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affine_transform</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToPILImage</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span>
+                <span class="n">mean</span><span class="o">=</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dict_stats</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dict_stats</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dict_stats</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span>
+                <span class="p">],</span>
+                <span class="n">std</span><span class="o">=</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dict_stats</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dict_stats</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dict_stats</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">which_set</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_affine_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+                <span class="n">transforms</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+                <span class="n">transforms</span><span class="o">.</span><span class="n">RandomVerticalFlip</span><span class="p">(),</span>
+            <span class="p">])</span>
+
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        -------</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        length : int</span>
+<span class="sd">            number of images in the dataset list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_list_images</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ---------</span>
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        idx : int</span>
+<span class="sd">            index of the file</span>
+
+<span class="sd">        -------</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (image, label) : tuple of torch tensors</span>
+<span class="sd">            tuple of normalized image and label torch tensors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_image</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dir_images</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_images</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">file_label</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dir_labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_list_labels</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">file_image</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">file_label</span><span class="p">)</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_padder</span><span class="o">.</span><span class="n">pad_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_padder</span><span class="o">.</span><span class="n">pad_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">which_set</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+            <span class="n">image_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="c1"># H x W x 3</span>
+            <span class="n">label_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="c1"># H x W</span>
+            <span class="n">label_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">label_tensor</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># H x W x 1</span>
+            <span class="n">stacked</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">image_tensor</span><span class="p">,</span> <span class="n">label_tensor</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># H x W x 4</span>
+            <span class="n">stacked</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="n">stacked</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="c1"># 4 x H x W</span>
+            <span class="n">stacked_transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affine_transform</span><span class="p">(</span><span class="n">stacked</span><span class="p">)</span>
+            <span class="c1"># 4 x H x W</span>
+            <span class="n">stacked_transformed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="n">stacked_transformed</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="c1"># H x W x 4</span>
+            <span class="n">stacked_arr</span> <span class="o">=</span> <span class="n">stacked_transformed</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+            <span class="n">image</span> <span class="o">=</span> <span class="n">stacked_arr</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># H x W x 3</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">stacked_arr</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># H x W</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_transform</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">label</span></div>
+
+<div class="viewcode-block" id="get_dataloaders_for_training"><a class="viewcode-back" href="../../training.html#training.dataset.get_dataloaders_for_training">[docs]</a><span class="k">def</span> <span class="nf">get_dataloaders_for_training</span><span class="p">(</span><span class="n">dir_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    dir_dataset : str</span>
+<span class="sd">        full path to dataset directory</span>
+<span class="sd">    batch_size : int</span>
+<span class="sd">        batch size to be used</span>
+<span class="sd">    random_state : int</span>
+<span class="sd">        random state to be used for train / validation set split (default: None)</span>
+<span class="sd">    num_workers : int</span>
+<span class="sd">        number of workers to be used for dataloader (default: 4)</span>
+
+<span class="sd">    -------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    (train_dataset_loader, valid_dataset_loader) : tuple</span>
+<span class="sd">        tuple of torch dataloaders</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">list_images</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_dataset</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">))</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.jpg&quot;</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">list_train_images</span><span class="p">,</span> <span class="n">list_valid_images</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+        <span class="n">list_images</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;dataset information&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;number of train samples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">list_train_images</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;number of validation samples: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">list_valid_images</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">M4DSAROilSpillDataset</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_dataset</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">),</span>
+        <span class="n">list_train_images</span><span class="p">,</span>
+        <span class="n">which_set</span><span class="o">=</span><span class="s2">&quot;train&quot;</span>
+    <span class="p">)</span>
+    <span class="n">train_dataset_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">train_dataset</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span>
+    <span class="p">)</span>
+
+    <span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">M4DSAROilSpillDataset</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_dataset</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">),</span>
+        <span class="n">list_valid_images</span><span class="p">,</span>
+        <span class="n">which_set</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span>
+    <span class="p">)</span>
+    <span class="n">valid_dataset_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">valid_dataset</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">train_dataset_loader</span><span class="p">,</span> <span class="n">valid_dataset_loader</span></div>
+
+<div class="viewcode-block" id="get_dataloader_for_inference"><a class="viewcode-back" href="../../training.html#training.dataset.get_dataloader_for_inference">[docs]</a><span class="k">def</span> <span class="nf">get_dataloader_for_inference</span><span class="p">(</span><span class="n">dir_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Arguments</span>
+<span class="sd">    ---------</span>
+<span class="sd">    dir_dataset : str</span>
+<span class="sd">        full path to dataset directory</span>
+<span class="sd">    batch_size : int</span>
+<span class="sd">        batch size to be used (default: 1)</span>
+<span class="sd">    num_workers : int</span>
+<span class="sd">        number of workers to be used for dataloader (default: 4)</span>
+
+<span class="sd">    -------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    (inference_dataset_loader, list_inference_images) : tuple</span>
+<span class="sd">        tuple of torch dataloader and a list of inference images</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">list_inference_images</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_dataset</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;images&quot;</span><span class="p">))</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.jpg&quot;</span><span class="p">)]</span>
+    <span class="p">)</span>
+
+    <span class="n">inference_dataset</span> <span class="o">=</span> <span class="n">M4DSAROilSpillDataset</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_dataset</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">),</span>
+        <span class="n">list_inference_images</span><span class="p">,</span>
+        <span class="n">which_set</span><span class="o">=</span><span class="s2">&quot;test&quot;</span>
+    <span class="p">)</span>
+    <span class="n">inference_dataset_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">inference_dataset</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">inference_dataset_loader</span><span class="p">,</span> <span class="n">list_inference_images</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, AbhishekRS4.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
