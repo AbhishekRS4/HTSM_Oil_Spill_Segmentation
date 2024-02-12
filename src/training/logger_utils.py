@@ -37,6 +37,7 @@ def load_dict_from_json(file_json):
 class CSVWriter:
     """
     CSVWriter class for writing tabular data to a csv file
+
     ----------
     Attributes
     ----------
@@ -66,6 +67,7 @@ class CSVWriter:
     def write_row(self, row):
         """
         writes a row into csv file
+
         ---------
         Arguments
         ---------

@@ -4,7 +4,7 @@ import argparse
 import numpy as np
 from skimage.io import imread
 
-from logger_utils import write_json_file
+from logger_utils import write_dict_to_json
 
 def compute_stats(FLAGS):
     list_images = sorted(os.listdir(FLAGS.dir_images))
