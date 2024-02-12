@@ -5,6 +5,7 @@
 ## Paper available on ArXiv
 * The results of this research is available in the [ArXiv paper](https://arxiv.org/abs/2305.01386).
 
+
 ## Info about the project
 * This repo contains the project work done as part of the [HTSM Masterwork](https://www.rug.nl/education/honours-college/htsm-masterprogramme/about-the-programme) at [University of Groningen](https://www.rug.nl/).
 * Research work carried as part of the HTSM Masterwork to train deep learning CNN model for segmentation task to detect oil spills from the satellite
@@ -17,6 +18,7 @@ Synthetic Aperture Radar (SAR) data.
 * The details about the dataset used in this Masterwork project can be found here - [dataset details](https://m4d.iti.gr/oil-spill-detection-dataset/).
 * This dataset contains labels for 5 classes --- sea surface, oil spill, oil spill look-alike, ship, and land.
 * ThIs dataset is a relatively smaller dataset when compared to other popular benchmark datasets for the segmentation task.
+
 
 ## Required dependencies for training
 * To install pytorch use the following command
@@ -40,6 +42,7 @@ with the mean and std. dev. of images in the training set.
 * For plotting the variation of loss, accuracy, IoU during the training phase, use the notebook [src/training/plot_graphs.ipynb](src/training/plot_graphs.ipynb).
 * To infer on the test set, run the script [src/training/inference.py](src/training/inference.py).
 
+
 ## Docker deployment instructions
 * The streamlit [app](src/app.py) has been developed for deployment.
 * The detailed python package requirements for the streamlit app can be found in [src/requirements_deployment.txt](src/requirements_deployment.txt).
@@ -51,6 +54,7 @@ docker build -t app_oil_spill .
 ```
 docker run -p 8000:8000 -t app_oil_spill
 ```
+
 
 ## Huggingface deployment
 * A streamlit application, with the best performing model, has been deployed to [Huggingface](https://huggingface.co/spaces/abhishekrs4/Oil_Spill_Segmentation)
@@ -66,7 +70,6 @@ docker run -p 8000:8000 -t app_oil_spill
 
 
 ## Quantitative results
-
 * The best model's class-wise and mean IoU performance is presented below.
 
 class  |  class IoU (%)  |
@@ -77,6 +80,37 @@ oil spill look-alike  |  40.773  |
 ship  |  33.378  |
 land  |  92.218  |
 **mean IoU**  |  **64.868**  |
+
+
+## Sphinx docstring generation
+* The following are the steps to generate docstrings using sphinx
+* Create a directory named `docs` and go to that directory
+```
+mkdir docs && cd docs
+```
+* Run the following command with appropriate options
+```
+sphinx-quickstart
+```
+* Open the file `index.rst` and add `modules` to it
+* In the file `conf.py`, make the following changes
+  * set `html_theme = 'sphinx_rtd_theme'`
+  * set `extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc"]`
+  * add the following to the beginning of the `conf.py` file
+  ```
+  import os
+  import sys
+
+  sys.path.insert(0, os.path.abspath(".."))
+  ```
+* Run the following command
+```
+sphinx-apidoc -o . ..
+```
+* Create html files with docstrings
+```
+make html
+```
 
 
 ## References
