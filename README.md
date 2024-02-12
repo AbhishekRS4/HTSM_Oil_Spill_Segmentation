@@ -88,6 +88,7 @@ land  |  92.218  |
 ```
 mkdir docs && cd docs
 ```
+* Run the everyone of following commands inside `docs` directory
 * Run the following command with appropriate options
 ```
 sphinx-quickstart
@@ -107,7 +108,7 @@ sphinx-quickstart
 ```
 sphinx-apidoc -o . ..
 ```
-* Create html files with docstrings
+* Create html files with documentation
 ```
 make html
 ```
