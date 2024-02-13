@@ -111,6 +111,7 @@ def show_mask_interpretation():
     fig = plt.figure(figsize=(20, 2))
     plt.title("Oil Spill mask interpretation")
     plt.xticks(ticks=np.arange(len(labels)), labels=labels)
+    plt.yticks([])
     plt.imshow(data, cmap=my_cmap)
     st.pyplot(fig)
     return
