@@ -46,11 +46,19 @@ def summarize_model(FLAGS):
         sys.exit(0)
 
     print(f"oil spill segmentation model name - {FLAGS.which_model}")
-    print(f"image input - {FLAGS.input_channels} x {FLAGS.image_height} x {FLAGS.image_width}")
+    print(
+        f"image input - {FLAGS.input_channels} x {FLAGS.image_height} x {FLAGS.image_width}"
+    )
     print("\n\nmodel summary\n")
     oil_spill_seg_model = oil_spill_seg_model.to(device)
-    print(summary(oil_spill_seg_model, (FLAGS.input_channels, FLAGS.image_height, FLAGS.image_width)))
+    print(
+        summary(
+            oil_spill_seg_model,
+            (FLAGS.input_channels, FLAGS.image_height, FLAGS.image_width),
+        )
+    )
     return
+
 
 def main():
     image_height = 672
@@ -73,22 +81,41 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument("--which_model", default=which_model,
-        type=str, choices=list_model_choices, help="the model for which summary needs to be generated")
-    parser.add_argument("--image_height", default=image_height,
-        type=int, help="image height")
-    parser.add_argument("--image_width", default=image_width,
-        type=int, help="image width")
-    parser.add_argument("--num_classes", default=num_classes,
-        type=int, help="number of classes")
-    parser.add_argument("--pretrained", default=pretrained,
-        type=int, choices=[1, 0], help="pretrained [1 - True, 0 - False]")
-    parser.add_argument("--input_channels", default=input_channels,
-        type=int, choices=[1, 3, 4], help="number of input channels [1 - Depth, 3 - RGB, 4 - RGBD]")
+    parser.add_argument(
+        "--which_model",
+        default=which_model,
+        type=str,
+        choices=list_model_choices,
+        help="the model for which summary needs to be generated",
+    )
+    parser.add_argument(
+        "--image_height", default=image_height, type=int, help="image height"
+    )
+    parser.add_argument(
+        "--image_width", default=image_width, type=int, help="image width"
+    )
+    parser.add_argument(
+        "--num_classes", default=num_classes, type=int, help="number of classes"
+    )
+    parser.add_argument(
+        "--pretrained",
+        default=pretrained,
+        type=int,
+        choices=[1, 0],
+        help="pretrained [1 - True, 0 - False]",
+    )
+    parser.add_argument(
+        "--input_channels",
+        default=input_channels,
+        type=int,
+        choices=[1, 3, 4],
+        help="number of input channels [1 - Depth, 3 - RGB, 4 - RGBD]",
+    )
 
     FLAGS, unparsed = parser.parse_known_args()
     summarize_model(FLAGS)
     return
+
 
 if __name__ == "__main__":
     main()

@@ -9,11 +9,26 @@ import torch.nn.functional as F
 
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 from torchvision.models.resnet import BasicBlock, Bottleneck, conv1x1
-from torchvision.models.resnet import ResNet18_Weights, ResNet34_Weights, ResNet50_Weights, ResNet101_Weights
+from torchvision.models.resnet import (
+    ResNet18_Weights,
+    ResNet34_Weights,
+    ResNet50_Weights,
+    ResNet101_Weights,
+)
 
 from torchvision.ops.misc import Conv2dNormActivation
-from torchvision.models.efficientnet import _MBConvConfig, MBConvConfig, FusedMBConvConfig, _efficientnet_conf
-from torchvision.models.efficientnet import EfficientNet_V2_S_Weights, EfficientNet_V2_M_Weights, EfficientNet_V2_L_Weights
+from torchvision.models.efficientnet import (
+    _MBConvConfig,
+    MBConvConfig,
+    FusedMBConvConfig,
+    _efficientnet_conf,
+)
+from torchvision.models.efficientnet import (
+    EfficientNet_V2_S_Weights,
+    EfficientNet_V2_M_Weights,
+    EfficientNet_V2_L_Weights,
+)
+
 
 class CustomResNet(nn.Module):
     def __init__(
@@ -75,14 +90,22 @@ class CustomResNet(nn.Module):
         self.groups = groups
         self.base_width = width_per_group
 
-        self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
+        self.conv1 = nn.Conv2d(
+            3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False
+        )
         self.bn1 = self._norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2])
+        self.layer2 = self._make_layer(
+            block, 128, layers[1], stride=2, dilate=replace_stride_with_dilation[0]
+        )
+        self.layer3 = self._make_layer(
+            block, 256, layers[2], stride=2, dilate=replace_stride_with_dilation[1]
+        )
+        self.layer4 = self._make_layer(
+            block, 512, layers[3], stride=2, dilate=replace_stride_with_dilation[2]
+        )
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -124,7 +147,14 @@ class CustomResNet(nn.Module):
         layers = []
         layers.append(
             block(
-                self.inplanes, planes, stride, downsample, self.groups, self.base_width, previous_dilation, norm_layer
+                self.inplanes,
+                planes,
+                stride,
+                downsample,
+                self.groups,
+                self.base_width,
+                previous_dilation,
+                norm_layer,
             )
         )
         self.inplanes = planes * block.expansion
@@ -170,6 +200,7 @@ class CustomResNet(nn.Module):
 
         return x
 
+
 def _resnet(block_type, layers, weights=None, progress=True):
     """
     ---------
@@ -197,6 +228,7 @@ def _resnet(block_type, layers, weights=None, progress=True):
 
     return model
 
+
 def resnet18(pretrained=True):
     r"""ResNet-18 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
@@ -213,6 +245,7 @@ def resnet18(pretrained=True):
         weights = None
     return _resnet(BasicBlock, [2, 2, 2, 2], weights=weights)
 
+
 def resnet34(pretrained=True):
     r"""ResNet-34 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
@@ -228,6 +261,7 @@ def resnet34(pretrained=True):
     else:
         weights = None
     return _resnet(BasicBlock, [3, 4, 6, 3], weights=weights)
+
 
 def resnet50(pretrained=True):
     r"""ResNet-50 model from
@@ -302,7 +336,9 @@ class CustomEfficientNet(nn.Module):
             isinstance(inverted_residual_setting, Sequence)
             and all([isinstance(s, _MBConvConfig) for s in inverted_residual_setting])
         ):
-            raise TypeError("The inverted_residual_setting should be List[MBConvConfig]")
+            raise TypeError(
+                "The inverted_residual_setting should be List[MBConvConfig]"
+            )
 
         if "block" in kwargs:
             warnings.warn(
@@ -323,7 +359,12 @@ class CustomEfficientNet(nn.Module):
         firstconv_output_channels = inverted_residual_setting[0].input_channels
         layers.append(
             Conv2dNormActivation(
-                3, firstconv_output_channels, kernel_size=3, stride=2, norm_layer=norm_layer, activation_layer=nn.SiLU
+                3,
+                firstconv_output_channels,
+                kernel_size=3,
+                stride=2,
+                norm_layer=norm_layer,
+                activation_layer=nn.SiLU,
             )
         )
 
@@ -342,7 +383,9 @@ class CustomEfficientNet(nn.Module):
                     block_cnf.stride = 1
 
                 # adjust stochastic depth probability based on the depth of the stage block
-                sd_prob = stochastic_depth_prob * float(stage_block_id) / total_stage_blocks
+                sd_prob = (
+                    stochastic_depth_prob * float(stage_block_id) / total_stage_blocks
+                )
 
                 stage.append(block_cnf.block(block_cnf, sd_prob, norm_layer))
                 stage_block_id += 1
@@ -351,7 +394,9 @@ class CustomEfficientNet(nn.Module):
 
         # building last several layers
         lastconv_input_channels = inverted_residual_setting[-1].out_channels
-        lastconv_output_channels = last_channel if last_channel is not None else 4 * lastconv_input_channels
+        lastconv_output_channels = (
+            last_channel if last_channel is not None else 4 * lastconv_input_channels
+        )
         layers.append(
             Conv2dNormActivation(
                 lastconv_input_channels,
@@ -388,6 +433,7 @@ class CustomEfficientNet(nn.Module):
         x = self.features(x)
         return x
 
+
 def _efficientnet(
     inverted_residual_setting,
     dropout: float,
@@ -396,7 +442,7 @@ def _efficientnet(
     norm_layer=partial(nn.BatchNorm2d, eps=1e-03),
     progress=True,
     **kwargs: Any,
-    ):
+):
     """
     ---------
     Arguments
@@ -419,13 +465,14 @@ def _efficientnet(
         dropout,
         last_channel=last_channel,
         norm_layer=norm_layer,
-        **kwargs
+        **kwargs,
     )
 
     if weights is not None:
         model.load_state_dict(weights.get_state_dict(progress=progress))
 
     return model
+
 
 def efficientnet_v2_s(pretrained=True, **kwargs: Any):
     """
@@ -451,6 +498,7 @@ def efficientnet_v2_s(pretrained=True, **kwargs: Any):
         **kwargs,
     )
 
+
 def efficientnet_v2_m(pretrained=True, **kwargs: Any):
     """
     ---------
@@ -474,6 +522,7 @@ def efficientnet_v2_m(pretrained=True, **kwargs: Any):
         weights=weights,
         **kwargs,
     )
+
 
 def efficientnet_v2_l(pretrained=True, **kwargs: Any):
     """

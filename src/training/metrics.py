@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 # compute mean pixel accuracy
 def compute_mean_pixel_acc(true_label, pred_label):
     """
@@ -22,7 +23,12 @@ def compute_mean_pixel_acc(true_label, pred_label):
         mean pixel accuracy
     """
     if true_label.shape != pred_label.shape:
-        print("true_label has dimension", true_label.shape, ", pred_label values have shape", pred_label.shape)
+        print(
+            "true_label has dimension",
+            true_label.shape,
+            ", pred_label values have shape",
+            pred_label.shape,
+        )
         return
 
     if true_label.dim() != 3:
@@ -39,12 +45,13 @@ def compute_mean_pixel_acc(true_label, pred_label):
         same = (true_label_arr == pred_label_arr).sum()
 
         a, b = true_label_arr.shape
-        total = a*b
+        total = a * b
 
         acc_sum += same / total
 
     mean_pixel_accuracy = acc_sum / true_label.shape[0]
     return mean_pixel_accuracy
+
 
 # compute mean IOU
 def compute_mean_IOU(true_label, pred_label, num_classes=5):
@@ -73,18 +80,23 @@ def compute_mean_IOU(true_label, pred_label, num_classes=5):
     # Note: Following for loop goes from 0 to (num_classes-1)
     # in computation of IoU.
     for sem_class in range(num_classes):
-        pred_label_inds = (pred_label == sem_class)
-        target_inds = (true_label == sem_class)
+        pred_label_inds = pred_label == sem_class
+        target_inds = true_label == sem_class
         if target_inds.long().sum().item() == 0:
             iou_now = float("nan")
         else:
             intersection_now = (pred_label_inds[target_inds]).long().sum().item()
-            union_now = pred_label_inds.long().sum().item() + target_inds.long().sum().item() - intersection_now
+            union_now = (
+                pred_label_inds.long().sum().item()
+                + target_inds.long().sum().item()
+                - intersection_now
+            )
             iou_now = float(intersection_now) / float(union_now)
             present_iou_list.append(iou_now)
         iou_list.append(iou_now)
     present_iou_list = np.array(present_iou_list)
     return np.mean(present_iou_list)
+
 
 def compute_class_IOU(true_label, pred_label, num_classes=5):
     """
@@ -116,14 +128,18 @@ def compute_class_IOU(true_label, pred_label, num_classes=5):
     # Note: Following for loop goes from 0 to (num_classes-1)
     # in computation of IoU.
     for sem_class in range(num_classes):
-        pred_label_inds = (pred_label == sem_class)
-        target_inds = (true_label == sem_class)
+        pred_label_inds = pred_label == sem_class
+        target_inds = true_label == sem_class
         if target_inds.long().sum().item() == 0:
             iou_now = float("nan")
         else:
             intersection_now = (pred_label_inds[target_inds]).long().sum().item()
-            union_now = pred_label_inds.long().sum().item() + target_inds.long().sum().item() - intersection_now
+            union_now = (
+                pred_label_inds.long().sum().item()
+                + target_inds.long().sum().item()
+                - intersection_now
+            )
             iou_now = float(intersection_now) / float(union_now)
             present_iou_list.append(iou_now)
-        per_class_iou[sem_class] = (iou_now)
+        per_class_iou[sem_class] = iou_now
     return per_class_iou

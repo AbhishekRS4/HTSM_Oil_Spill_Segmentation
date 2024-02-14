@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 import pandas as pd
 
+
 def compute_kfold_validation_metrics(FLAGS):
     print(f"attempting to read results data from the directory: {FLAGS.dir_results}")
     print(f"for model: {FLAGS.which_model}")
@@ -16,8 +17,12 @@ def compute_kfold_validation_metrics(FLAGS):
         if os.path.isdir(cur_dir_fold):
             df_metrics = pd.read_csv(os.path.join(cur_dir_fold, FLAGS.file_metrics))
             max_index = np.argmax(df_metrics["valid_IOU"].to_numpy())
-            max_validation_IOUs = np.append(max_validation_IOUs, df_metrics["valid_IOU"].to_numpy()[max_index])
-            max_validation_accs = np.append(max_validation_accs, df_metrics["valid_acc"].to_numpy()[max_index])
+            max_validation_IOUs = np.append(
+                max_validation_IOUs, df_metrics["valid_IOU"].to_numpy()[max_index]
+            )
+            max_validation_accs = np.append(
+                max_validation_accs, df_metrics["valid_acc"].to_numpy()[max_index]
+            )
 
     max_validation_IOUs = 100 * max_validation_IOUs
     max_validation_accs = 100 * max_validation_accs
@@ -35,6 +40,7 @@ def compute_kfold_validation_metrics(FLAGS):
     print(f"validation acc: {acc_mean:.3f} +/- {acc_std:.3f} %")
     return
 
+
 def main():
     dir_results = "/home/abhishek/Desktop/RUG/htsm_masterwork/resnet_patch_padding_sgd/"
     file_metrics = "train_metrics.csv"
@@ -44,16 +50,29 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument("--dir_results", default=dir_results,
-        type=str, help="full directory path to the results")
-    parser.add_argument("--file_metrics", default=file_metrics,
-        type=str, help="csv file name with train/validation metrics")
-    parser.add_argument("--which_model", default=which_model,
-        type=str, help="model for which the kfold validation metrics needs to be computed")
+    parser.add_argument(
+        "--dir_results",
+        default=dir_results,
+        type=str,
+        help="full directory path to the results",
+    )
+    parser.add_argument(
+        "--file_metrics",
+        default=file_metrics,
+        type=str,
+        help="csv file name with train/validation metrics",
+    )
+    parser.add_argument(
+        "--which_model",
+        default=which_model,
+        type=str,
+        help="model for which the kfold validation metrics needs to be computed",
+    )
 
     FLAGS, unparsed = parser.parse_known_args()
     compute_kfold_validation_metrics(FLAGS)
     return
+
 
 if __name__ == "__main__":
     main()

@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
+
 class DeepLabV3(nn.Module):
     """
     DeepLabV3 class to build the DeepLabV3 decoder model
@@ -20,17 +21,24 @@ class DeepLabV3(nn.Module):
     aspp_dilate: list
         a list of dilation rates to be used for conv layers in ASPP block (default: [12, 24, 36])
     """
-    def __init__(self, in_channels, num_classes, aspp_out_channels=256, final_out_channels=256, aspp_dilate=[12, 24, 36]):
+
+    def __init__(
+        self,
+        in_channels,
+        num_classes,
+        aspp_out_channels=256,
+        final_out_channels=256,
+        aspp_dilate=[12, 24, 36],
+    ):
         super().__init__()
-        self.aspp_block = ASPPBlock(in_channels, aspp_dilate, aspp_out_channels=aspp_out_channels)
+        self.aspp_block = ASPPBlock(
+            in_channels, aspp_dilate, aspp_out_channels=aspp_out_channels
+        )
         self.classifier_conv_block = nn.Sequential(
-            nn.Conv2d(
-                aspp_out_channels,
-                final_out_channels, 3, padding=1, bias=False
-            ),
+            nn.Conv2d(aspp_out_channels, final_out_channels, 3, padding=1, bias=False),
             nn.BatchNorm2d(final_out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(final_out_channels, num_classes, 1, stride=1, padding="same")
+            nn.Conv2d(final_out_channels, num_classes, 1, stride=1, padding="same"),
         )
         self._init_weights()
 
@@ -61,6 +69,7 @@ class DeepLabV3(nn.Module):
         final_output_feature = self.classifier_conv_block(aspp_output_feature)
         return final_output_feature
 
+
 class DeepLabV3Plus(nn.Module):
     """
     DeepLabV3Plus class to build the DeepLabV3+ decoder model
@@ -83,8 +92,17 @@ class DeepLabV3Plus(nn.Module):
     aspp_dilate: list
         a list of dilation rates to be used for conv layers in ASPP block (default: [12, 24, 36])
     """
-    def __init__(self, in_channels, encoder_channels, num_classes, encoder_projection_channels=48,
-        aspp_out_channels=256, final_out_channels=256, aspp_dilate=[12, 24, 36]):
+
+    def __init__(
+        self,
+        in_channels,
+        encoder_channels,
+        num_classes,
+        encoder_projection_channels=48,
+        aspp_out_channels=256,
+        final_out_channels=256,
+        aspp_dilate=[12, 24, 36],
+    ):
 
         super().__init__()
         self.projection_conv = nn.Sequential(
@@ -93,16 +111,21 @@ class DeepLabV3Plus(nn.Module):
             nn.ReLU(inplace=True),
         )
 
-        self.aspp_block = ASPPBlock(in_channels, aspp_dilate, aspp_out_channels=aspp_out_channels)
+        self.aspp_block = ASPPBlock(
+            in_channels, aspp_dilate, aspp_out_channels=aspp_out_channels
+        )
 
         self.classifier_conv_block = nn.Sequential(
             nn.Conv2d(
                 aspp_out_channels + encoder_projection_channels,
-                final_out_channels, 3, padding=1, bias=False
+                final_out_channels,
+                3,
+                padding=1,
+                bias=False,
             ),
             nn.BatchNorm2d(final_out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(final_out_channels, num_classes, 1, stride=1, padding="same")
+            nn.Conv2d(final_out_channels, num_classes, 1, stride=1, padding="same"),
         )
 
         self._init_weights()
@@ -135,13 +158,16 @@ class DeepLabV3Plus(nn.Module):
         encoder_connection = self.projection_conv(block_1_features)
         aspp_output_feature = self.aspp_block(encoded_features)
         aspp_output_feature = F.interpolate(
-            aspp_output_feature, size=encoder_connection.shape[2:],
-            mode="bilinear", align_corners=False
+            aspp_output_feature,
+            size=encoder_connection.shape[2:],
+            mode="bilinear",
+            align_corners=False,
         )
         final_output_feature = self.classifier_conv_block(
             torch.cat([encoder_connection, aspp_output_feature], dim=1)
         )
         return final_output_feature
+
 
 class ASPPConvLayer(nn.Sequential):
     """
@@ -157,15 +183,20 @@ class ASPPConvLayer(nn.Sequential):
     dilation : int
         dilation rate
     """
+
     def __init__(self, in_channels, out_channels, dilation):
         super().__init__()
         self.conv_block = nn.Sequential(
             nn.Conv2d(
-                in_channels, out_channels, 3, padding=dilation,
-                dilation=dilation, bias=False
+                in_channels,
+                out_channels,
+                3,
+                padding=dilation,
+                dilation=dilation,
+                bias=False,
             ),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         self._init_weights()
 
@@ -195,6 +226,7 @@ class ASPPConvLayer(nn.Sequential):
         x = self.conv_block(x)
         return x
 
+
 class ASPPPoolingLayer(nn.Sequential):
     def __init__(self, in_channels, out_channels):
         """
@@ -211,7 +243,9 @@ class ASPPPoolingLayer(nn.Sequential):
         super().__init__()
         self.avg_pool_block = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
-            nn.Conv2d(in_channels, out_channels, 1, stride=1, padding="same", bias=False),
+            nn.Conv2d(
+                in_channels, out_channels, 1, stride=1, padding="same", bias=False
+            ),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
         )
@@ -245,6 +279,7 @@ class ASPPPoolingLayer(nn.Sequential):
         x = F.interpolate(x, size=size, mode="bilinear", align_corners=False)
         return x
 
+
 class ASPPBlock(nn.Module):
     def __init__(self, in_channels, atrous_rates, aspp_out_channels=256):
         """
@@ -263,22 +298,30 @@ class ASPPBlock(nn.Module):
         super().__init__()
 
         self.aspp_init_conv = nn.Sequential(
-            nn.Conv2d(in_channels, aspp_out_channels, 1, stride=1, padding="same", bias=False),
+            nn.Conv2d(
+                in_channels, aspp_out_channels, 1, stride=1, padding="same", bias=False
+            ),
             nn.BatchNorm2d(aspp_out_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         modules = []
         modules.append(self.aspp_init_conv)
         modules += [
-            ASPPConvLayer(in_channels, aspp_out_channels, atrous_rate) for atrous_rate in atrous_rates
+            ASPPConvLayer(in_channels, aspp_out_channels, atrous_rate)
+            for atrous_rate in atrous_rates
         ]
         modules.append(ASPPPoolingLayer(in_channels, aspp_out_channels))
         self.aspp_module_layers = nn.ModuleList(modules)
 
         self.aspp_final_conv = nn.Sequential(
-            nn.Conv2d((2 + len(atrous_rates)) * aspp_out_channels,
-                aspp_out_channels, 1, stride=1, padding="same", bias=False
+            nn.Conv2d(
+                (2 + len(atrous_rates)) * aspp_out_channels,
+                aspp_out_channels,
+                1,
+                stride=1,
+                padding="same",
+                bias=False,
             ),
             nn.BatchNorm2d(aspp_out_channels),
             nn.ReLU(inplace=True),

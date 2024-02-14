@@ -18,6 +18,7 @@ from logger_utils import CSVWriter, write_dict_to_json
 
 from torch.optim.lr_scheduler import _LRScheduler
 
+
 class PolynomialLR(_LRScheduler):
     """
     PolynomialLR class for the polynomial learning rate scheduler
@@ -36,15 +37,22 @@ class PolynomialLR(_LRScheduler):
     min_lr : float
         minimum value for the learning rate (default: 1e-6)
     """
+
     def __init__(self, optimizer, max_epochs, power=0.9, last_epoch=-1, min_lr=1e-6):
         self.power = power
         self.max_epochs = max_epochs
-        self.min_lr = min_lr # avoid zero lr
+        self.min_lr = min_lr  # avoid zero lr
         super(PolynomialLR, self).__init__(optimizer, last_epoch)
 
     def get_lr(self):
-        return [ max( base_lr * ( 1 - self.last_epoch/self.max_epochs )**self.power, self.min_lr)
-                for base_lr in self.base_lrs]
+        return [
+            max(
+                base_lr * (1 - self.last_epoch / self.max_epochs) ** self.power,
+                self.min_lr,
+            )
+            for base_lr in self.base_lrs
+        ]
+
 
 def validation_loop(dataset_loader, model, ce_loss, device):
     """
@@ -90,6 +98,7 @@ def validation_loop(dataset_loader, model, ce_loss, device):
     valid_IOU /= num_batches
     return valid_loss, valid_acc, valid_IOU
 
+
 def train_loop(dataset_loader, model, ce_loss, optimizer, device):
     """
     ---------
@@ -133,19 +142,24 @@ def train_loop(dataset_loader, model, ce_loss, optimizer, device):
     train_loss /= num_batches
     return train_loss
 
+
 def batch_train(FLAGS):
     dir_path = os.path.join(FLAGS.dir_model, FLAGS.which_model)
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
         print(f"created directory : {dir_path}")
-    csv_writer = CSVWriter(file_name=os.path.join(dir_path, "train_metrics.csv"),
-        column_names=["epoch", "train_loss", "valid_loss", "valid_acc", "valid_IOU"])
+    csv_writer = CSVWriter(
+        file_name=os.path.join(dir_path, "train_metrics.csv"),
+        column_names=["epoch", "train_loss", "valid_loss", "valid_acc", "valid_IOU"],
+    )
 
     os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_dataset_loader, valid_dataset_loader = get_dataloaders_for_training(
-        FLAGS.dir_dataset, FLAGS.batch_size, random_state=FLAGS.random_state,
+        FLAGS.dir_dataset,
+        FLAGS.batch_size,
+        random_state=FLAGS.random_state,
     )
 
     if FLAGS.which_model == "resnet_18_deeplab_v3+":
@@ -186,10 +200,12 @@ def batch_train(FLAGS):
             oil_spill_seg_model.parameters(),
             lr=FLAGS.learning_rate,
             momentum=0.9,
-            weight_decay=FLAGS.weight_decay
+            weight_decay=FLAGS.weight_decay,
         )
         lr_scheduler = PolynomialLR(
-            optimizer, FLAGS.num_epochs+1, power=0.9,
+            optimizer,
+            FLAGS.num_epochs + 1,
+            power=0.9,
         )
     elif FLAGS.which_optimizer == "adamw":
         optimizer = torch.optim.AdamW(
@@ -201,18 +217,22 @@ def batch_train(FLAGS):
     ce_loss = torch.nn.CrossEntropyLoss()
     print(f"\ntraining oil spill segmentation model: {FLAGS.which_model}\n")
     write_dict_to_json(os.path.join(dir_path, "params.json"), vars(FLAGS))
-    for epoch in range(1, FLAGS.num_epochs+1):
+    for epoch in range(1, FLAGS.num_epochs + 1):
         t_1 = time.time()
         train_loss = train_loop(
             train_dataset_loader, oil_spill_seg_model, ce_loss, optimizer, device
         )
         t_2 = time.time()
-        print("-"*100)
-        print(f"Epoch : {epoch}/{FLAGS.num_epochs}, time: {(t_2-t_1):.2f} sec., train loss: {train_loss:.5f}")
+        print("-" * 100)
+        print(
+            f"Epoch : {epoch}/{FLAGS.num_epochs}, time: {(t_2-t_1):.2f} sec., train loss: {train_loss:.5f}"
+        )
         valid_loss, valid_acc, valid_IOU = validation_loop(
             valid_dataset_loader, oil_spill_seg_model, ce_loss, device
         )
-        print(f"validation loss: {valid_loss:.5f}, validation accuracy: {valid_acc:.5f}, validation IOU: {valid_IOU:.5f}")
+        print(
+            f"validation loss: {valid_loss:.5f}, validation accuracy: {valid_acc:.5f}, validation IOU: {valid_IOU:.5f}"
+        )
         csv_writer.write_row(
             [
                 epoch,
@@ -222,15 +242,21 @@ def batch_train(FLAGS):
                 round(valid_IOU, 5),
             ]
         )
-        torch.save(oil_spill_seg_model.state_dict(), os.path.join(dir_path, f"oil_spill_seg_{FLAGS.which_model}_{epoch}.pt"))
+        torch.save(
+            oil_spill_seg_model.state_dict(),
+            os.path.join(dir_path, f"oil_spill_seg_{FLAGS.which_model}_{epoch}.pt"),
+        )
         if FLAGS.which_optimizer == "sgd":
             lr_scheduler.step()
     print("Training complete!!!!")
     csv_writer.close()
     return
 
+
 def main():
-    dir_dataset = "/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/"
+    dir_dataset = (
+        "/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/"
+    )
     learning_rate = 1e-2
     weight_decay = 1e-4
     which_optimizer = "sgd"
@@ -253,37 +279,79 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument("--dir_dataset", default=dir_dataset,
-        type=str, help="full directory path to the dataset")
+    parser.add_argument(
+        "--dir_dataset",
+        default=dir_dataset,
+        type=str,
+        help="full directory path to the dataset",
+    )
 
-    parser.add_argument("--pretrained", default=1,
-        type=int, choices=[0, 1], help="use pretrained encoder (1:True, 0:False)")
+    parser.add_argument(
+        "--pretrained",
+        default=1,
+        type=int,
+        choices=[0, 1],
+        help="use pretrained encoder (1:True, 0:False)",
+    )
 
-    parser.add_argument("--random_state", default=3,
-        type=int, help="random state to be used to split dataset into train and validation sets")
+    parser.add_argument(
+        "--random_state",
+        default=3,
+        type=int,
+        help="random state to be used to split dataset into train and validation sets",
+    )
 
-    parser.add_argument("--which_optimizer", default=which_optimizer,
-        type=str, choices=["sgd", "adamw"], help="optimizer to be used for learning")
-    parser.add_argument("--learning_rate", default=learning_rate,
-        type=float, help="learning rate (1e-4 for AdamW and 1e-2 for SGD)")
-    parser.add_argument("--weight_decay", default=weight_decay,
-        type=float, help="weight decay")
-    parser.add_argument("--num_epochs", default=num_epochs,
-        type=int, help="number of epochs to train")
-    parser.add_argument("--batch_size", default=batch_size,
-        type=int, help="number of samples in a batch")
+    parser.add_argument(
+        "--which_optimizer",
+        default=which_optimizer,
+        type=str,
+        choices=["sgd", "adamw"],
+        help="optimizer to be used for learning",
+    )
+    parser.add_argument(
+        "--learning_rate",
+        default=learning_rate,
+        type=float,
+        help="learning rate (1e-4 for AdamW and 1e-2 for SGD)",
+    )
+    parser.add_argument(
+        "--weight_decay", default=weight_decay, type=float, help="weight decay"
+    )
+    parser.add_argument(
+        "--num_epochs", default=num_epochs, type=int, help="number of epochs to train"
+    )
+    parser.add_argument(
+        "--batch_size",
+        default=batch_size,
+        type=int,
+        help="number of samples in a batch",
+    )
 
-    parser.add_argument("--num_classes", default=num_classes,
-        type=int, help="number of semantic classes in the dataset")
+    parser.add_argument(
+        "--num_classes",
+        default=num_classes,
+        type=int,
+        help="number of semantic classes in the dataset",
+    )
 
-    parser.add_argument("--which_model", default=which_model,
-        type=str, choices=list_model_choices, help="which model to train")
-    parser.add_argument("--dir_model", default=dir_model,
-        type=str, help="base directory where to save the directory with trained checkpoint model files")
+    parser.add_argument(
+        "--which_model",
+        default=which_model,
+        type=str,
+        choices=list_model_choices,
+        help="which model to train",
+    )
+    parser.add_argument(
+        "--dir_model",
+        default=dir_model,
+        type=str,
+        help="base directory where to save the directory with trained checkpoint model files",
+    )
 
     FLAGS, unparsed = parser.parse_known_args()
     batch_train(FLAGS)
     return
+
 
 if __name__ == "__main__":
     main()

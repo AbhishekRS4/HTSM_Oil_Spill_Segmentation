@@ -14,6 +14,7 @@ from metrics import *
 from seg_models import *
 from dataset import get_dataloader_for_inference
 
+
 def create_directory(dir_path):
     """
     ---------
@@ -27,7 +28,17 @@ def create_directory(dir_path):
         print(f"Created directory: {dir_path}")
     return
 
-def inference_loop(dataset_loader, list_images, model, dir_labels, dir_masks, num_classes, device, image_format=".png"):
+
+def inference_loop(
+    dataset_loader,
+    list_images,
+    model,
+    dir_labels,
+    dir_masks,
+    num_classes,
+    device,
+    image_format=".png",
+):
     """
     ---------
     Arguments
@@ -89,33 +100,50 @@ def inference_loop(dataset_loader, list_images, model, dir_labels, dir_masks, nu
         pred_mask_arr = np.zeros((pred_label_arr.shape[0], pred_label_arr.shape[1], 3))
         for sem_class in range(num_classes):
             curr_class_label = pred_label_one_hot[:, :, sem_class]
-            curr_class_label = curr_class_label.reshape(pred_label_one_hot.shape[0], pred_label_one_hot.shape[1], 1)
+            curr_class_label = curr_class_label.reshape(
+                pred_label_one_hot.shape[0], pred_label_one_hot.shape[1], 1
+            )
 
             curr_class_color_mapping = dict_label_to_color_mapping[sem_class]
-            curr_class_color_mapping = curr_class_color_mapping.reshape(1, curr_class_color_mapping.shape[0])
+            curr_class_color_mapping = curr_class_color_mapping.reshape(
+                1, curr_class_color_mapping.shape[0]
+            )
 
-            pred_mask_arr +=  curr_class_label * curr_class_color_mapping
+            pred_mask_arr += curr_class_label * curr_class_color_mapping
 
         pred_label_arr = pred_label_arr.astype(np.uint8)
         pred_mask_arr = pred_mask_arr.astype(np.uint8)
 
-        file_pred_label = os.path.join(dir_labels, list_images[cur_file_index].replace(".jpg", image_format))
-        file_pred_mask = os.path.join(dir_masks, list_images[cur_file_index].replace(".jpg", image_format))
+        file_pred_label = os.path.join(
+            dir_labels, list_images[cur_file_index].replace(".jpg", image_format)
+        )
+        file_pred_mask = os.path.join(
+            dir_masks, list_images[cur_file_index].replace(".jpg", image_format)
+        )
 
         padded_height, padded_width = pred_label_arr.shape
 
         # remove padding and save the label and mask images
-        imsave(file_pred_label, pred_label_arr[11:padded_height-11, 15:padded_width-15])
-        imsave(file_pred_mask, pred_mask_arr[11:padded_height-11, 15:padded_width-15])
+        imsave(
+            file_pred_label,
+            pred_label_arr[11 : padded_height - 11, 15 : padded_width - 15],
+        )
+        imsave(
+            file_pred_mask,
+            pred_mask_arr[11 : padded_height - 11, 15 : padded_width - 15],
+        )
 
         cur_file_index += 1
 
     infer_acc /= num_batches
     infer_per_class_IOU = np.nanmean(infer_class_IOU, axis=0)
-    return  infer_acc, infer_per_class_IOU
+    return infer_acc, infer_per_class_IOU
+
 
 def run_inference(FLAGS):
-    inference_dataset_loader, list_inference_images = get_dataloader_for_inference(FLAGS.dir_dataset)
+    inference_dataset_loader, list_inference_images = get_dataloader_for_inference(
+        FLAGS.dir_dataset
+    )
     print("dataset information")
     print(f"number of test samples: {len(list_inference_images)}")
 
@@ -181,8 +209,11 @@ def run_inference(FLAGS):
     print(infer_per_class_IOU)
     return
 
+
 def main():
-    dir_dataset = "/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/"
+    dir_dataset = (
+        "/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/"
+    )
     num_classes = 5
     which_model = "resnet_18_deeplab_v3+"
     list_model_choices = [
@@ -201,22 +232,49 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument("--pretrained", default=1,
-        type=int, choices=[0, 1], help="use pretrained encoder (1:True, 0:False)")
-    parser.add_argument("--dir_dataset", default=dir_dataset,
-        type=str, help="full directory path to the dataset")
-    parser.add_argument("--num_classes", default=num_classes,
-        type=int, help="number of semantic classes in the dataset")
-    parser.add_argument("--which_model", default=which_model,
-        type=str, choices=list_model_choices, help="which model to train")
-    parser.add_argument("--file_model_weights", default=file_model_weights,
-        type=str, help="full path to the model weights file ")
-    parser.add_argument("--dir_save_preds", default=dir_save_preds,
-        type=str, help="full directory path to save the predictions")
+    parser.add_argument(
+        "--pretrained",
+        default=1,
+        type=int,
+        choices=[0, 1],
+        help="use pretrained encoder (1:True, 0:False)",
+    )
+    parser.add_argument(
+        "--dir_dataset",
+        default=dir_dataset,
+        type=str,
+        help="full directory path to the dataset",
+    )
+    parser.add_argument(
+        "--num_classes",
+        default=num_classes,
+        type=int,
+        help="number of semantic classes in the dataset",
+    )
+    parser.add_argument(
+        "--which_model",
+        default=which_model,
+        type=str,
+        choices=list_model_choices,
+        help="which model to train",
+    )
+    parser.add_argument(
+        "--file_model_weights",
+        default=file_model_weights,
+        type=str,
+        help="full path to the model weights file ",
+    )
+    parser.add_argument(
+        "--dir_save_preds",
+        default=dir_save_preds,
+        type=str,
+        help="full directory path to save the predictions",
+    )
 
     FLAGS, unparsed = parser.parse_known_args()
     run_inference(FLAGS)
     return
+
 
 if __name__ == "__main__":
     main()

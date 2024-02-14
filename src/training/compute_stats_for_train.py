@@ -6,6 +6,7 @@ from skimage.io import imread
 
 from logger_utils import write_dict_to_json
 
+
 def compute_stats(FLAGS):
     list_images = sorted(os.listdir(FLAGS.dir_images))
 
@@ -27,7 +28,9 @@ def compute_stats(FLAGS):
         all_stds = np.append(all_stds, np.std(image[:, :, 0]))
 
     mean_of_images = np.mean(all_means)
-    std_of_images = np.sqrt(all_stds.shape[0] * np.sum(np.square(all_stds)) / (all_stds.shape[0] - 1)**2)
+    std_of_images = np.sqrt(
+        all_stds.shape[0] * np.sum(np.square(all_stds)) / (all_stds.shape[0] - 1) ** 2
+    )
     print(f"mean: {mean_of_images:.4f}, std: {std_of_images:.4f}")
     dict_stats = {}
     dict_stats["mean"] = round(mean_of_images, 4)
@@ -37,6 +40,7 @@ def compute_stats(FLAGS):
     print("Completed computing statistics for all the training images in the dataset")
     return
 
+
 def main():
     file_json = "image_stats.json"
     dir_images = "/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/train/images/"
@@ -45,14 +49,23 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument("--file_json", default=file_json,
-        type=str, help="full path of json file to be saved")
-    parser.add_argument("--dir_images", default=dir_images,
-        type=str, help="full path of directory containing training images")
+    parser.add_argument(
+        "--file_json",
+        default=file_json,
+        type=str,
+        help="full path of json file to be saved",
+    )
+    parser.add_argument(
+        "--dir_images",
+        default=dir_images,
+        type=str,
+        help="full path of directory containing training images",
+    )
 
     FLAGS, unparsed = parser.parse_known_args()
     compute_stats(FLAGS)
     return
+
 
 if __name__ == "__main__":
     main()

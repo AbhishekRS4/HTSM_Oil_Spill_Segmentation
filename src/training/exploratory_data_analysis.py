@@ -4,6 +4,7 @@ import numpy as np
 from skimage.io import imread
 import matplotlib.pyplot as plt
 
+
 def do_exploratory_data_analysis(FLAGS):
     dir_labels = os.path.normpath(FLAGS.dir_labels)
     print(f"Label files are read from the directory: {dir_labels}")
@@ -34,7 +35,10 @@ def do_exploratory_data_analysis(FLAGS):
     print(dict_class_counts)
     expr = r"$\times 10^3$"
     fig = plt.figure(figsize=(12, 12))
-    plt.bar(list(dict_label_mapping.values()), np.array(list(dict_class_counts.values())) / 1000)
+    plt.bar(
+        list(dict_label_mapping.values()),
+        np.array(list(dict_class_counts.values())) / 1000,
+    )
     plt.grid()
     plt.title("Class distribution for Oil Spill Detection Dataset", fontsize=16)
     plt.xlabel("Semantic class labels", fontsize=20)
@@ -44,6 +48,7 @@ def do_exploratory_data_analysis(FLAGS):
     plt.show()
     return
 
+
 def main():
     dir_labels = "/home/abhishek/Desktop/RUG/htsm_masterwork/oil-spill-detection-dataset/train/labels_1D/"
 
@@ -51,11 +56,16 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument("--dir_labels", default=dir_labels,
-        type=str, help="full directory path to the labels")
+    parser.add_argument(
+        "--dir_labels",
+        default=dir_labels,
+        type=str,
+        help="full directory path to the labels",
+    )
     FLAGS, unparsed = parser.parse_known_args()
     do_exploratory_data_analysis(FLAGS)
     return
+
 
 if __name__ == "__main__":
     main()

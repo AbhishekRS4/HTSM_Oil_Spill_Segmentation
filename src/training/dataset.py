@@ -11,8 +11,15 @@ from sklearn.model_selection import train_test_split
 from image_preprocessing import ImagePadder
 from logger_utils import load_dict_from_json
 
+
 class M4DSAROilSpillDataset(Dataset):
-    def __init__(self, dir_data, list_images, which_set="train", file_stats_json="image_stats.json"):
+    def __init__(
+        self,
+        dir_data,
+        list_images,
+        which_set="train",
+        file_stats_json="image_stats.json",
+    ):
         """
         M4DSAROilSpillDataset class to load satellite image dataset
 
@@ -35,7 +42,9 @@ class M4DSAROilSpillDataset(Dataset):
             self.dict_stats = load_dict_from_json(self.file_stats_json)
         except:
             dir_json = os.path.dirname(os.path.realpath(__file__))
-            self.dict_stats = load_dict_from_json(os.path.join(dir_json, self.file_stats_json))
+            self.dict_stats = load_dict_from_json(
+                os.path.join(dir_json, self.file_stats_json)
+            )
         self._dir_images = os.path.join(self.dir_data, "images")
         self._dir_labels = os.path.join(self.dir_data, "labels_1D")
 
@@ -43,32 +52,41 @@ class M4DSAROilSpillDataset(Dataset):
         self._list_labels = [f.replace(".jpg", ".png") for f in self._list_images]
 
         dir_pad_image = os.path.dirname(self._dir_images)
-        self._image_padder = ImagePadder(os.path.join("/".join(os.path.normpath(dir_pad_image).split(os.sep)[:-1]), "train", "images"))
+        self._image_padder = ImagePadder(
+            os.path.join(
+                "/".join(os.path.normpath(dir_pad_image).split(os.sep)[:-1]),
+                "train",
+                "images",
+            )
+        )
         self._affine_transform = None
 
-        self._image_transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[
-                    self.dict_stats["mean"],
-                    self.dict_stats["mean"],
-                    self.dict_stats["mean"]
-                ],
-                std=[
-                    self.dict_stats["std"],
-                    self.dict_stats["std"],
-                    self.dict_stats["std"]
-                ]
-            ),
-        ])
+        self._image_transform = transforms.Compose(
+            [
+                transforms.ToPILImage(),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[
+                        self.dict_stats["mean"],
+                        self.dict_stats["mean"],
+                        self.dict_stats["mean"],
+                    ],
+                    std=[
+                        self.dict_stats["std"],
+                        self.dict_stats["std"],
+                        self.dict_stats["std"],
+                    ],
+                ),
+            ]
+        )
 
         if self.which_set == "train":
-            self._affine_transform = transforms.Compose([
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomVerticalFlip(),
-            ])
-
+            self._affine_transform = transforms.Compose(
+                [
+                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomVerticalFlip(),
+                ]
+            )
 
     def __len__(self):
         """
@@ -128,7 +146,10 @@ class M4DSAROilSpillDataset(Dataset):
         image = self._image_transform(image)
         return image, label
 
-def get_dataloaders_for_training(dir_dataset, batch_size, random_state=None, num_workers=4):
+
+def get_dataloaders_for_training(
+    dir_dataset, batch_size, random_state=None, num_workers=4
+):
     """
     ---------
     Arguments
@@ -149,39 +170,37 @@ def get_dataloaders_for_training(dir_dataset, batch_size, random_state=None, num
         tuple of torch dataloaders
     """
     list_images = sorted(
-        [f for f in os.listdir(os.path.join(dir_dataset, "train", "images")) if f.endswith(".jpg")]
+        [
+            f
+            for f in os.listdir(os.path.join(dir_dataset, "train", "images"))
+            if f.endswith(".jpg")
+        ]
     )
     list_train_images, list_valid_images = train_test_split(
-        list_images, test_size=0.05, shuffle=True, random_state=random_state,
+        list_images,
+        test_size=0.05,
+        shuffle=True,
+        random_state=random_state,
     )
     print("dataset information")
     print(f"number of train samples: {len(list_train_images)}")
     print(f"number of validation samples: {len(list_valid_images)}")
 
     train_dataset = M4DSAROilSpillDataset(
-        os.path.join(dir_dataset, "train"),
-        list_train_images,
-        which_set="train"
+        os.path.join(dir_dataset, "train"), list_train_images, which_set="train"
     )
     train_dataset_loader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers
+        train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
 
     valid_dataset = M4DSAROilSpillDataset(
-        os.path.join(dir_dataset, "train"),
-        list_valid_images,
-        which_set="valid"
+        os.path.join(dir_dataset, "train"), list_valid_images, which_set="valid"
     )
     valid_dataset_loader = DataLoader(
-        valid_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers
+        valid_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
     )
     return train_dataset_loader, valid_dataset_loader
+
 
 def get_dataloader_for_inference(dir_dataset, batch_size=1, num_workers=4):
     """
@@ -202,18 +221,17 @@ def get_dataloader_for_inference(dir_dataset, batch_size=1, num_workers=4):
         tuple of torch dataloader and a list of inference images
     """
     list_inference_images = sorted(
-        [f for f in os.listdir(os.path.join(dir_dataset, "test", "images")) if f.endswith(".jpg")]
+        [
+            f
+            for f in os.listdir(os.path.join(dir_dataset, "test", "images"))
+            if f.endswith(".jpg")
+        ]
     )
 
     inference_dataset = M4DSAROilSpillDataset(
-        os.path.join(dir_dataset, "test"),
-        list_inference_images,
-        which_set="test"
+        os.path.join(dir_dataset, "test"), list_inference_images, which_set="test"
     )
     inference_dataset_loader = DataLoader(
-        inference_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers
+        inference_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
     )
     return inference_dataset_loader, list_inference_images

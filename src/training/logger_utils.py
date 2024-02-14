@@ -1,6 +1,7 @@
 import csv
 import json
 
+
 def write_dict_to_json(file_json, dict_data):
     """
     ---------
@@ -14,6 +15,7 @@ def write_dict_to_json(file_json, dict_data):
     with open(file_json, "w", encoding="utf-8") as fh:
         fh.write(json.dumps(dict_data, indent=4))
     return
+
 
 def load_dict_from_json(file_json):
     """
@@ -34,6 +36,7 @@ def load_dict_from_json(file_json):
         dict_data = json.load(fh)
     return dict_data
 
+
 class CSVWriter:
     """
     CSVWriter class for writing tabular data to a csv file
@@ -47,6 +50,7 @@ class CSVWriter:
         a list of column names
 
     """
+
     def __init__(self, file_name, column_names):
         self.file_name = file_name
         self.column_names = column_names
