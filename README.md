@@ -91,7 +91,7 @@ mkdir docs && cd docs
 * Run the everyone of following commands inside `docs` directory
 * Run the following command with appropriate options
 ```
-sphinx-quickstart ..
+sphinx-quickstart
 ```
 * Open the file `index.rst` and add `modules` to it
 * In the file `conf.py`, make the following changes
