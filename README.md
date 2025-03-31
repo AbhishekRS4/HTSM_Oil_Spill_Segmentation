@@ -2,8 +2,27 @@
 ##### [Abhishek Ramanathapura Satyanarayana](https://orcid.org/0009-0003-1248-0988), [Maruf A. Dhali](https://orcid.org/0000-0002-7548-3858)
 
 
-## Paper available on ArXiv
-* The results of this research is available in the [ArXiv paper](https://arxiv.org/abs/2305.01386).
+## To cite this work
+* Use the following to cite this work
+```
+@conference{icpram25,
+author={Abhishek Ramanathapura Satyanarayana and Maruf A. Dhali},
+title={Oil Spill Segmentation Using Deep Encoder-Decoder Models},
+booktitle={Proceedings of the 14th International Conference on Pattern Recognition Applications and Methods - ICPRAM},
+year={2025},
+pages={741-748},
+publisher={SciTePress},
+organization={INSTICC},
+doi={10.5220/0013259600003905},
+isbn={978-989-758-730-6},
+issn={2184-4313},
+}
+```
+
+## Paper available
+* The paper that outlines the results of this work has been accepted at ICPRAM 2025 conference in the industrial applications section because of the 
+impact the work has in the remote sensing industrial applications domain. The link to the [ICPRAM paper](https://www.scitepress.org/PublicationsDetail.aspx?ID=vkytS8s+DA8=&t=1)
+* An older version of the paper with the results of this work is also available in the [ArXiv](https://arxiv.org/abs/2305.01386). This will be updated soon.
 
 
 ## Info about the project
